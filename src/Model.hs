@@ -2,17 +2,13 @@
 --   which represent the state of the game
 module Model where
 
-data InfoToShow = ShowNothing
-                | ShowANumber Int
-                | ShowAChar   Char
+data GameState = GameLevel LevelState | GameMenu MenuState
 
-nO_SECS_BETWEEN_CYCLES :: Float
-nO_SECS_BETWEEN_CYCLES = 5
+data LevelState = LevelState Int
 
-data GameState = GameState {
-                   infoToShow  :: InfoToShow
-                 , elapsedTime :: Float
-                 }
+data MenuState = MenuState GameName
+
+type GameName = String
 
 initialState :: GameState
-initialState = GameState ShowNothing 0
+initialState = GameMenu (MenuState "Kario")
