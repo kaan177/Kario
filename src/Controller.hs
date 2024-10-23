@@ -1,3 +1,4 @@
+{-# language NamedFieldPuns #-}
 -- | This module defines how the state changes
 --   in response to time and user input
 module Controller where
@@ -17,10 +18,10 @@ input :: Event -> GameState -> IO GameState
 input e gstate = return (inputKey e gstate)
 
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu (MenuState s)) = GameLevel (LevelState 0)
+inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu (MenuState s)) = GameLevel initialLevelState
 inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s)) = GameMenu (MenuState (removeLast s))
 inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s)) = GameMenu (MenuState (s ++ [c]))
-inputKey (EventKey (Char c) Down _ _) (GameLevel (LevelState n)) = GameLevel (LevelState (n + 1))
+inputKey (EventKey (Char c) Down _ _) (GameLevel levelState@(LevelState {lilInt})) = GameLevel levelState {lilInt = lilInt + 1}
 inputKey _ gstate = gstate
 
 removeLast :: String -> String
