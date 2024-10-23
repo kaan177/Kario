@@ -11,10 +11,10 @@ import System.Random
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs (GameMenu menuState)   = do menu <- stepMenu secs menuState
-                                      return (GameMenu menu)  
-step secs (GameLevel levelState) = do level <- stepLevel secs levelState
-                                      return (GameLevel level)
+step secs (GameMenu menuState s)   = do menu <- stepMenu secs menuState
+                                        return (GameMenu menu s)  
+step secs (GameLevel levelState s) = do level <- stepLevel secs levelState
+                                        return (GameLevel level s)
                                    
 
 -- | Handle one iteration of the menu
@@ -36,10 +36,10 @@ input :: Event -> GameState -> IO GameState
 input e gstate = return (inputKey e gstate)
 
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu (MenuState s)) = GameLevel initialLevelState
-inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s)) = GameMenu (MenuState (removeLast s))
-inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s)) = GameMenu (MenuState (s ++ [c]))
-inputKey (EventKey (Char c) Down _ _) (GameLevel levelState@(LevelState {lilInt})) = GameLevel levelState {lilInt = lilInt + 1}
+inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu _ sprites) = GameLevel initialLevelState sprites
+inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s) sprites) = GameMenu (MenuState (removeLast s)) sprites
+inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s) sprites) = GameMenu (MenuState (s ++ [c])) sprites
+inputKey (EventKey (Char c) Down _ _) (GameLevel levelState@(LevelState {lilInt}) sprites) = GameLevel levelState {lilInt = lilInt + 1} sprites
 inputKey _ gstate = gstate
 
 removeLast :: String -> String

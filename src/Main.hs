@@ -5,11 +5,18 @@ import Model
 import View
 
 import Graphics.Gloss.Interface.IO.Game
+import Graphics.Gloss (loadBMP)
 main :: IO ()
-main = playIO (InWindow "Kario" (400, 400) (0, 0)) -- Or FullScreen
+main = do sprites <- loadImages
+          playIO (InWindow "Kario" (400, 400) (0, 0)) -- Or FullScreen
               black            -- Background color
-              10               -- Frames per second
-              initialState     -- Initial state
+              30               -- Frames per second
+              (initialState sprites)  -- Initial state
               view             -- View function
               input            -- Event function
               step             -- Step function
+
+loadImages :: IO Sprites
+loadImages = do kario <- loadBMP "assets\\Kario.bmp"
+                return (Sprites kario)
+

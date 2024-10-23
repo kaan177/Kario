@@ -11,10 +11,10 @@ view :: GameState -> IO Picture
 view = return . viewPure
 
 viewPure :: GameState -> Picture
-viewPure (GameMenu(MenuState s)) = translate (-200) 0.0 (color red (text s))
-viewPure (GameLevel LevelState {kario, lilInt} ) = Pictures[
-    drawKario kario
-    ,color blue (drawSquares lilInt)
+viewPure (GameMenu(MenuState s) _) = translate (-200) 0.0 (color red (text s))
+viewPure (GameLevel LevelState {kario, lilInt} Sprites{karioImage}) = Pictures[
+    drawKario kario karioImage,
+    color blue (drawSquares lilInt)
     ]
 
 data Square = Sqr Point Point Point Point
@@ -29,5 +29,5 @@ drawSquares :: Int -> Picture
 drawSquares 0 = polygon (sqrToList (sqrFromSize 10))
 drawSquares n = Pictures [polygon (sqrToList (sqrFromSize 10)), translate 20 0 (drawSquares (n - 1))]
 
-drawKario :: Kario -> Picture
-drawKario Kario{hitbox = Hitbox (x,y) w h} = color red $ translate x y $ rectangleSolid w h
+drawKario :: Kario -> Picture -> Picture
+drawKario Kario{hitbox = Hitbox {pos = (x,y)}} = translate x y

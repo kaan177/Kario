@@ -5,11 +5,16 @@ module Model where
 
 import Graphics.Gloss
 
-data GameState = GameLevel LevelState | GameMenu MenuState
+data Sprites = Sprites{
+    karioImage :: Picture
+}
+
+
+data GameState = GameLevel LevelState Sprites | GameMenu MenuState Sprites
 
 data LevelState = LevelState {
-    kario :: Kario
-    , lilInt :: Int
+    kario :: Kario,
+    lilInt :: Int
     }
 
 data MenuState = MenuState GameName
@@ -31,7 +36,7 @@ type DirectionalVelocity = Vector
 
 type GameName = String
 
-initialState :: GameState
+initialState :: Sprites -> GameState
 initialState = GameMenu (MenuState "Kario")
 
 initialLevelState :: LevelState
