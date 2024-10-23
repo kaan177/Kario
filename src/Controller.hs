@@ -11,7 +11,25 @@ import System.Random
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs gstate = return gstate
+step secs (GameMenu menuState)   = do menu <- stepMenu secs menuState
+                                      return (GameMenu menu)  
+step secs (GameLevel levelState) = do level <- stepLevel secs levelState
+                                      return (GameLevel level)
+                                   
+
+-- | Handle one iteration of the menu
+stepMenu :: Float -> MenuState -> IO MenuState
+stepMenu secs menuState = return menuState
+
+
+-- | Handle one iteration of the level
+stepLevel :: Float -> LevelState -> IO LevelState
+stepLevel secs levelState@(LevelState {kario})
+    = return levelState {kario = moveKario secs kario}
+
+moveKario :: Float -> Kario -> Kario
+moveKario secs kario@Kario{hitbox = hitbox@Hitbox{pos = (px, py)} ,dirVelocity = (vx, vy)}
+    = kario {hitbox = hitbox{pos = (px + secs * vx, py + secs * vy)} }
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState

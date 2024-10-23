@@ -18,7 +18,12 @@ data Kario = Kario {
     hitbox :: Hitbox
     ,dirVelocity :: DirectionalVelocity
 }
-data Hitbox = Hitbox Position Width Height --origin in centre
+data Hitbox = Hitbox {
+    pos :: Position,
+    width :: Width,
+    height :: Height
+    }  --origin in centre
+
 type Position = Point
 type Width = Float
 type Height = Float
@@ -30,4 +35,4 @@ initialState :: GameState
 initialState = GameMenu (MenuState "Kario")
 
 initialLevelState :: LevelState
-initialLevelState = LevelState (Kario (Hitbox (0,0) 20 20) (0, 0)) 1
+initialLevelState = LevelState (Kario (Hitbox (0,0) 20 20) (10, 0)) 1
