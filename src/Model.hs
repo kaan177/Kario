@@ -10,7 +10,8 @@ data Sprites = Sprites{
     groundImage :: Picture,
     brickImage :: Picture,
     questionMarkImage :: Picture,
-    brokenQuestionMarkImage :: Picture
+    brokenQuestionMarkImage :: Picture,
+    coinImage :: Picture
 }
 
 
@@ -19,7 +20,8 @@ data GameState = GameLevel LevelState Sprites | GameMenu MenuState Sprites
 data LevelState = LevelState {
     kario :: Kario,
     lilInt :: Int,
-    platforms :: [Platform]
+    platforms :: [Platform],
+    coins :: [Coin]
     }
 
 data MenuState = MenuState GameName
@@ -31,6 +33,8 @@ data Kario = Kario {
 data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUpType | EmptyItemBox Hitbox
 
 data PowerUpType = Mushroom | Star
+
+data Coin = Coin Hitbox ShouldExist
 
 data Hitbox = Hitbox {
     pos :: Position,
@@ -55,3 +59,4 @@ initialLevelState :: LevelState
 initialLevelState = LevelState 
   (Kario (Hitbox (0,0) 20 20) (10, 0)) 1 
   [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)]
+  [Coin (Hitbox (5 * gridSize, 4 * gridSize) 30 30) Exist, Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Exist, Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Exist]

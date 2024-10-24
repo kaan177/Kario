@@ -12,10 +12,11 @@ view = return . viewPure
 
 viewPure :: GameState -> Picture
 viewPure (GameMenu(MenuState s) _) = translate (-200) 0.0 (color red (text s))
-viewPure (GameLevel LevelState {kario, lilInt, platforms} sprites@Sprites{karioImage}) = Pictures [
+viewPure (GameLevel LevelState {kario, lilInt, platforms, coins} sprites@Sprites{karioImage, coinImage}) = Pictures [
     drawKario kario karioImage,
     drawPlatforms platforms sprites,
-    color blue (drawSquares lilInt)
+    color blue (drawSquares lilInt),
+    drawCoins coins coinImage
     ]
 
 data Square = Sqr Point Point Point Point
@@ -41,3 +42,9 @@ drawPlatform s (Ground (Hitbox (x,y) _ _)) = Translate x y (groundImage s)
 drawPlatform s (Brick (Hitbox (x,y) _ _)) = Translate x y (brickImage s)
 drawPlatform s (ItemBox (Hitbox (x,y) _ _)_) = Translate x y (questionMarkImage s)
 drawPlatform s (EmptyItemBox (Hitbox (x,y) _ _)) = Translate x y (brokenQuestionMarkImage s)
+
+drawCoins :: [Coin] -> Picture -> Picture
+drawCoins list p = Pictures (map (drawCoin p) list)
+
+drawCoin :: Picture -> Coin -> Picture
+drawCoin p (Coin (Hitbox (x,y) _ _) _ ) = translate x y p
