@@ -7,7 +7,10 @@ import Graphics.Gloss
 
 data Sprites = Sprites{
     karioImage :: Picture, 
-    groundImage :: Picture
+    groundImage :: Picture,
+    brickImage :: Picture,
+    questionMarkImage :: Picture,
+    brokenQuestionMarkImage :: Picture
 }
 
 
@@ -41,10 +44,14 @@ type Height = Float
 type DirectionalVelocity = Vector
 data ShouldExist = Exist | RemoveIn Int
 
+gridSize :: Float
+gridSize = 30
 type GameName = String
 
 initialState :: Sprites -> GameState
 initialState = GameMenu (MenuState "Kario")
 
 initialLevelState :: LevelState
-initialLevelState = LevelState (Kario (Hitbox (0,0) 20 20) (10, 0)) 1 [Ground (Hitbox (-30,0) 40 40)]
+initialLevelState = LevelState 
+  (Kario (Hitbox (0,0) 20 20) (10, 0)) 1 
+  [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)]

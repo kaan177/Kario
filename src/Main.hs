@@ -19,5 +19,8 @@ main = do sprites <- loadImages
 loadImages :: IO Sprites
 loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 ground <- loadBMP "assets\\Ground.bmp"
-                return (Sprites kario ground)
+                brick <- loadBMP "assets\\Brick.bmp"
+                questionMark <- loadBMP "assets\\QuestionMarkBlock.bmp"
+                brokenQuestionMark <- loadBMP "assets\\BrokenQuestionMarkBlock.bmp"
+                return (Sprites kario ground brick questionMark brokenQuestionMark)
 
