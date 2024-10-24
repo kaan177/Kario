@@ -12,8 +12,9 @@ view = return . viewPure
 
 viewPure :: GameState -> Picture
 viewPure (GameMenu(MenuState s) _) = translate (-200) 0.0 (color red (text s))
-viewPure (GameLevel LevelState {kario, lilInt} Sprites{karioImage}) = Pictures[
+viewPure (GameLevel LevelState {kario, lilInt, platforms} sprites@Sprites{karioImage}) = Pictures [
     drawKario kario karioImage,
+    drawPlatforms platforms sprites,
     color blue (drawSquares lilInt)
     ]
 
@@ -31,3 +32,12 @@ drawSquares n = Pictures [polygon (sqrToList (sqrFromSize 10)), translate 20 0 (
 
 drawKario :: Kario -> Picture -> Picture
 drawKario Kario{hitbox = Hitbox {pos = (x,y)}} = translate x y
+
+drawPlatforms :: [Platform] -> Sprites -> Picture
+drawPlatforms list sprites = Pictures (map (drawPlatform sprites) list)
+
+drawPlatform :: Sprites -> Platform -> Picture
+drawPlatform s (Ground (Hitbox (x,y) _ _)) = Translate x y (groundImage s)
+drawPlatform s (Brick (Hitbox (x,y) _ _)) = Translate x y (brickImage s)
+drawPlatform s (ItemBox (Hitbox (x,y) _ _)_) = Translate x y (questionMarkImage s)
+drawPlatform s (EmptyItemBox (Hitbox (x,y) _ _)) = Translate x y (brokenQuestionMarkImage s)
