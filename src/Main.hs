@@ -23,5 +23,6 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 questionMark <- loadBMP "assets\\QuestionMarkBlock.bmp"
                 brokenQuestionMark <- loadBMP "assets\\BrokenQuestionMarkBlock.bmp"
                 coin <- loadBMP "assets\\Coin.bmp"
-                return (Sprites kario ground brick questionMark brokenQuestionMark coin)
+                coinBling <- loadBMP "assets\\CoinBling.bmp"
+                return (Sprites kario ground brick questionMark brokenQuestionMark [coin, coinBling])
 

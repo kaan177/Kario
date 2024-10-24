@@ -11,7 +11,7 @@ data Sprites = Sprites{
     brickImage :: Picture,
     questionMarkImage :: Picture,
     brokenQuestionMarkImage :: Picture,
-    coinImage :: Picture
+    coinPictures :: [Picture]
 }
 
 data GameState = GameLevel LevelState Sprites | GameMenu MenuState Sprites
@@ -20,7 +20,8 @@ data LevelState = LevelState {
     kario :: Kario,
     lilInt :: Int,
     platforms :: [Platform],
-    coins :: [Coin]
+    coins :: [Coin],
+    elapsedGameTime :: Float
     }
 
 data MenuState = MenuState GameName
@@ -42,7 +43,7 @@ data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | I
 
 data PowerUpType = Mushroom | Star
 
-data Coin = Coin Hitbox ShouldExist
+data Coin = Coin Hitbox CoinAnimation ShouldExist
 
 data Hitbox = Hitbox {
     pos :: Position,
@@ -52,6 +53,8 @@ data Hitbox = Hitbox {
 
 data Airborne = Grounded | Falling | Rising
 
+data CoinAnimation = Bling | Collecting Float
+
 gridSize :: Float
 gridSize = 30
 type GameName = String
@@ -60,9 +63,11 @@ initialState :: Sprites -> GameState
 initialState = GameMenu (MenuState "Kario")
 
 initialLevelState :: LevelState
-
-initialLevelState = LevelState 
-  (Kario (Hitbox (0,0) 20 20) (10, 0) (0,0) Grounded) 1
-  [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)]
-  [Coin (Hitbox (5 * gridSize, 4 * gridSize) 30 30) Exist, Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Exist, Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Exist]
+initialLevelState = LevelState {
+  kario = Kario (Hitbox (0,0) 20 20) (10, 0) (0,0) Grounded,
+  lilInt = 1,
+  platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
+  coins = [Coin (Hitbox (5 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
+  elapsedGameTime = 0
+  }
 

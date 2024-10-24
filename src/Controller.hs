@@ -36,8 +36,9 @@ stepMenu secs menuState = return menuState
 
 -- | Handle one iteration of the level
 stepLevel :: Float -> LevelState -> IO LevelState
-stepLevel secs levelState@(LevelState {kario}) = return levelState {
-    kario = stepKario secs kario                                    --manipulate kario
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime}) = return levelState {
+    kario = stepKario secs kario ,                                   --manipulate kario
+    elapsedGameTime = elapsedGameTime + secs
     }
 
 -- | kario step logic
