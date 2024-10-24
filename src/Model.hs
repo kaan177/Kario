@@ -14,7 +14,6 @@ data Sprites = Sprites{
     coinImage :: Picture
 }
 
-
 data GameState = GameLevel LevelState Sprites | GameMenu MenuState Sprites
 
 data LevelState = LevelState {
@@ -26,9 +25,18 @@ data LevelState = LevelState {
 
 data MenuState = MenuState GameName
 
+type Position = Point
+type Width = Float
+type Height = Float
+type DirectionalVelocity = Vector
+type DirectionalAcceleration = Vector
+data ShouldExist = Exist | RemoveIn Int
+
 data Kario = Kario {
     hitbox :: Hitbox
     ,dirVelocity :: DirectionalVelocity
+    ,dirAccel :: DirectionalAcceleration
+    ,airborne :: Airborne
 }
 data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUpType | EmptyItemBox Hitbox
 
@@ -42,11 +50,7 @@ data Hitbox = Hitbox {
     height :: Height
     }  --origin in centre
 
-type Position = Point
-type Width = Float
-type Height = Float
-type DirectionalVelocity = Vector
-data ShouldExist = Exist | RemoveIn Int
+data Airborne = Grounded | Falling | Rising
 
 gridSize :: Float
 gridSize = 30
@@ -56,7 +60,9 @@ initialState :: Sprites -> GameState
 initialState = GameMenu (MenuState "Kario")
 
 initialLevelState :: LevelState
+
 initialLevelState = LevelState 
-  (Kario (Hitbox (0,0) 20 20) (10, 0)) 1 
+  (Kario (Hitbox (0,0) 20 20) (10, 0) (0,0) Grounded) 1
   [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)]
   [Coin (Hitbox (5 * gridSize, 4 * gridSize) 30 30) Exist, Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Exist, Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Exist]
+
