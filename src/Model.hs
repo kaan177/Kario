@@ -9,7 +9,6 @@ data Sprites = Sprites{
     karioImage :: Picture
 }
 
-
 data GameState = GameLevel LevelState Sprites | GameMenu MenuState Sprites
 
 data LevelState = LevelState {
@@ -19,20 +18,24 @@ data LevelState = LevelState {
 
 data MenuState = MenuState GameName
 
+type Position = Point
+type Width = Float
+type Height = Float
+type DirectionalVelocity = Vector
+type DirectionalAcceleration = Vector
+
 data Kario = Kario {
     hitbox :: Hitbox
     ,dirVelocity :: DirectionalVelocity
+    ,dirAccel :: DirectionalAcceleration
+    ,airborne :: Airborne
 }
 data Hitbox = Hitbox {
     pos :: Position,
     width :: Width,
     height :: Height
     }  --origin in centre
-
-type Position = Point
-type Width = Float
-type Height = Float
-type DirectionalVelocity = Vector
+data Airborne = Grounded | Falling | Rising
 
 type GameName = String
 
@@ -40,4 +43,4 @@ initialState :: Sprites -> GameState
 initialState = GameMenu (MenuState "Kario")
 
 initialLevelState :: LevelState
-initialLevelState = LevelState (Kario (Hitbox (0,0) 20 20) (10, 0)) 1
+initialLevelState = LevelState (Kario (Hitbox (0,0) 20 20) (10, 0) (0,0) Grounded) 1
