@@ -5,6 +5,7 @@ module Model where
 
 import Graphics.Gloss
 
+
 data Sprites = Sprites{
     karioImage :: Picture, 
     groundImage :: Picture,
@@ -14,7 +15,7 @@ data Sprites = Sprites{
     coinPictures :: [Picture]
 }
 
-data GameState = GameLevel LevelState Sprites | GameMenu MenuState Sprites
+data GameState = GameLevel LevelState Sprites [(String)] | GameMenu MenuState Sprites [(String)]
 
 data LevelState = LevelState {
     kario :: Kario,
@@ -59,15 +60,18 @@ gridSize :: Float
 gridSize = 30
 type GameName = String
 
-initialState :: Sprites -> GameState
-initialState = GameMenu (MenuState "Kario")
+initialState :: Sprites -> [String] -> GameState
+initialState = GameMenu (MenuState "Kario") 
 
 initialLevelState :: LevelState
 initialLevelState = LevelState {
   kario = Kario (Hitbox (0,0) 20 20) (10, 0) (0,0) Grounded,
   lilInt = 1,
   platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
-  coins = [Coin (Hitbox (5 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
+  coins = [Coin (Hitbox (0 * gridSize, 0 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
   elapsedGameTime = 0
   }
 
+
+screenSize :: (Int,Int)
+screenSize = (600,600)
