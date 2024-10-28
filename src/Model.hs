@@ -19,7 +19,6 @@ data GameState = GameLevel LevelState Sprites [(String)] | GameMenu MenuState Sp
 
 data LevelState = LevelState {
     kario :: Kario,
-    lilInt :: Int,
     platforms :: [Platform],
     coins :: [Coin],
     elapsedGameTime :: Float
@@ -36,6 +35,7 @@ data ShouldExist = Exist | RemoveIn Int
 
 data Kario = Kario {
     hitbox :: Hitbox
+    ,desiredHorizontalVelocity :: Float
     ,dirVelocity :: DirectionalVelocity
     ,dirAccel :: DirectionalAcceleration
     ,airborne :: Airborne
@@ -65,8 +65,7 @@ initialState = GameMenu (MenuState "Kario")
 
 initialLevelState :: LevelState
 initialLevelState = LevelState {
-  kario = Kario (Hitbox (0,0) 20 20) (10, 0) (0,0) Grounded,
-  lilInt = 1,
+  kario = Kario (Hitbox (0,0) 20 20) 0 (10, 0) (0,0) Grounded,
   platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
   coins = [Coin (Hitbox (0 * gridSize, 0 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
   elapsedGameTime = 0
