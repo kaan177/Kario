@@ -36,11 +36,14 @@ type LevelContents = String
 
 data GameState = GameLevel LevelState Sprites [LevelContents] | GameMenu MenuState Sprites [LevelContents]
 
+type Inputs = [Char] --all keys that are currently down.
+
 data LevelState = LevelState {
     kario :: Kario,
     platforms :: [Platform],
     coins :: [Coin],
-    elapsedGameTime :: Float
+    elapsedGameTime :: Float,
+    inputState :: Inputs
     }
 
 data MenuState = MenuState GameName
@@ -71,7 +74,7 @@ data Hitbox = Hitbox {
     height :: Height
     }  --origin in centre
 
-data Airborne = Grounded | Falling | Rising
+data Airborne = Grounded | Falling | Rising deriving Eq
 
 data CoinAnimation = Bling | Collecting Float
 
@@ -87,7 +90,8 @@ initialLevelState = LevelState {
   kario = Kario (Hitbox (-40,50) 30 45) 0 (0, 0) (0,0) Falling,
   platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Ground (Hitbox ((-1) * gridSize,(-1) * gridSize) 30 30), Ground (Hitbox ((-2) * gridSize,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
   coins = [Coin (Hitbox (0 * gridSize, 0 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
-  elapsedGameTime = 0
+  elapsedGameTime = 0,
+  inputState = []
   }
 
 

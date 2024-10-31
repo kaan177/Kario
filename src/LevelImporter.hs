@@ -35,7 +35,8 @@ emptyLevel = LevelState{
   kario = Kario (Hitbox (0,0) 20 20) 0 (10, 0) (0,0) Grounded,
   platforms = [],
   coins = [],
-  elapsedGameTime = 0
+  elapsedGameTime = 0,
+  inputState = []
 }
 
 listMaker :: String -> [(Char, Float, Float)]

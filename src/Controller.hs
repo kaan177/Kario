@@ -10,6 +10,7 @@ import Graphics.Gloss.Interface.IO.Game
 import System.Random
 import LevelImporter (levelBuilder)
 import Data.Maybe ( mapMaybe )
+import Data.List (delete)
 
 --movement modifiers
 karioSpeed :: Float
@@ -27,22 +28,17 @@ karioMaxFallSpeed = 300
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs (GameMenu menuState s l)   = do 
-    menu <- stepMenu secs menuState
-    return (GameMenu menu s l)  
-step secs (GameLevel levelState s l) = do 
-    level <- stepLevel secs levelState
-    return (GameLevel level s l)
-                                   
+step secs (GameMenu menuState s l)   = return (GameMenu (stepMenu secs menuState) s l)
+step secs (GameLevel levelState s l) = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l) --first handles the logged inputs and then handles all the other level logic
 
 -- | Handle one iteration of the menu
-stepMenu :: Float -> MenuState -> IO MenuState
-stepMenu secs menuState = return menuState
+stepMenu :: Float -> MenuState -> MenuState
+stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
-stepLevel :: Float -> LevelState -> IO LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms}) = return levelState {
-    kario = stepKario secs platforms kario,                                   --manipulate kario
+stepLevel :: Float -> LevelState -> LevelState
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms}) = levelState {
+    kario = stepKario secs platforms kario,                                                --manipulate kario
     elapsedGameTime = elapsedGameTime + secs
     }
 
@@ -51,17 +47,18 @@ stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms}) = ret
 
 --applies all the functions to kario that make up a step
 stepKario :: Float -> [Platform] -> Kario -> Kario
-stepKario secs platforms kario@Kario{hitbox = Hitbox{pos = prevPos}} = 
+stepKario secs platforms kario@Kario{hitbox = Hitbox{pos = prevPos}} =
     ({-karioHandleVerticalVelocity .-} handleKarioPlatformCollisions prevPos platforms . moveKario secs platforms . applyFrictionToKario secs . accelerateKario secs . applyGravityToKario secs) kario
 
 -- handles the collision between kario and all the platforms. Determines whether collisions are horizontal or vertical and acts accordingly.
 handleKarioPlatformCollisions :: Position -> [Platform] -> Kario -> Kario
 handleKarioPlatformCollisions (prevX, prevY) platforms movedKario = foldr handleKarioPlatformCollision movedKario{airborne = Falling} $ getOverlaps movedKario platforms
   where
-    handleKarioPlatformCollision :: Hitbox -> Kario -> Kario 
+    handleKarioPlatformCollision :: Hitbox -> Kario -> Kario
     handleKarioPlatformCollision Hitbox{width = overlapX, height = overlapY} kario@Kario{hitbox = hitbox@Hitbox{pos = (newX, newY)}, dirVelocity = (vx, vy)}
       | overlapX < overlapY = kario{hitbox = hitbox{pos = (prevX, newY)}, dirVelocity = (0, vy)}                      --when the horizontal overlap is smaller we treat the collision as a horizontal one
-      | otherwise           = kario{hitbox = hitbox{pos = (newX, prevY)}, dirVelocity = (vx, 0), airborne = Grounded} --otherwise we treat it as a vertical collision
+      | vy > 0              = kario{hitbox = hitbox{pos = (newX, prevY)}, dirVelocity = (vx, 0)}                      --if it is not horizontal and there is upwards velocity kario bumps its head
+      | otherwise           = kario{hitbox = hitbox{pos = (newX, prevY)}, dirVelocity = (vx, 0), airborne = Grounded} --otherwise we treat it as a vertical collision where kario falls
 
 --moves kario using its current velocity
 moveKario :: Float -> [Platform] -> Kario -> Kario
@@ -89,22 +86,39 @@ applyGravityToKario secs kario@Kario{dirVelocity = (velX, velY)} = kario{dirVelo
 input :: Event -> GameState -> IO GameState
 input e gstate = return (inputKey e gstate)
 
+--handle special inputs and log normal inputs
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu _ sprites l) = GameLevel (levelBuilder (head l)) sprites l                --switching to level
-inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (removeLast s)) sprites l --removing characters
-inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (s ++ [c])) sprites l                   --typing characters
-inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {kario}) sprites l) = GameLevel levelState {                     --handling level input
-    kario = karioInput c ks kario                                                                                                      --handling kario related input
-    } sprites l
-inputKey _ gstate = gstate                                                                                                             --edge cases without handling
+inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu _ sprites l) = GameLevel (levelBuilder (head l)) sprites l                     --switching to level
+inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {inputState}) sprites l) = GameLevel (levelState {
+    inputState = logInput c ks inputState                                                                                                   --logging level input
+    }) sprites l
+inputKey _ gstate = gstate                                                                                                                  --edge cases without handling
 
-karioInput :: Char -> KeyState -> Kario -> Kario
-karioInput 'a' Up kario                                                       = kario {desiredHorizontalVelocity = 0}
-karioInput 'd' Up kario                                                       = kario {desiredHorizontalVelocity = 0}
-karioInput 'a' _ kario                                                        = kario {desiredHorizontalVelocity = -karioSpeed}
-karioInput 'd' _ kario                                                        = kario {desiredHorizontalVelocity = karioSpeed}
-karioInput 'w' _ kario@Kario{dirVelocity = (velX, velY), airborne = Grounded} = kario {dirVelocity = (velX, velY + karioJumpStrength), airborne = Rising}
-karioInput  _  _ kario                                                        = kario
+logInput :: Char -> KeyState -> Inputs -> Inputs
+logInput c Down = (c:)
+logInput c Up   = delete c
+
+--handle the logged inputs
+handleLoggedInputs :: LevelState -> LevelState
+handleLoggedInputs levelState@LevelState{inputState, kario} = levelState{
+    kario = karioInput inputState kario
+}
+
+--should probably find another way of doing this as handling all combinations quickly becomes impossible with more possible inputs
+karioInput :: Inputs -> Kario -> Kario
+karioInput inputState kario@Kario{dirVelocity = (velX, velY), airborne}
+  | aPressed && dPressed && jump = kario{desiredHorizontalVelocity = 0, dirVelocity = (velX, velY + karioJumpStrength), airborne = Rising}
+  | aPressed && dPressed         = kario{desiredHorizontalVelocity = 0}
+  | aPressed && jump             = kario{desiredHorizontalVelocity = -karioSpeed, dirVelocity = (velX, velY + karioJumpStrength), airborne = Rising}
+  | dPressed && jump             = kario{desiredHorizontalVelocity = karioSpeed, dirVelocity = (velX, velY + karioJumpStrength), airborne = Rising}
+  | aPressed                     = kario{desiredHorizontalVelocity = -karioSpeed}
+  | dPressed                     = kario{desiredHorizontalVelocity = karioSpeed}
+  | jump                         = kario{dirVelocity = (velX, velY + karioJumpStrength), airborne = Rising}
+  | otherwise                    = kario{desiredHorizontalVelocity = 0}
+    where
+      aPressed = 'a' `elem` inputState
+      dPressed = 'd' `elem` inputState
+      jump = 'w' `elem` inputState && airborne == Grounded
 
 removeLast :: String -> String
 removeLast [] = []
