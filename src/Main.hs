@@ -6,12 +6,15 @@ import View
 
 import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss (loadBMP)
+import System.Directory (listDirectory)
+
 main :: IO ()
 main = do sprites <- loadImages
-          playIO (InWindow "Kario" (400, 400) (0, 0)) -- Or FullScreen
+          levels <- loadLevels
+          playIO (InWindow "Kario" screenSize (0, 0)) -- Or FullScreen
               black            -- Background color
               60               -- Frames per second
-              (initialState sprites)  -- Initial state
+              (initialState sprites levels)  -- Initial state
               view             -- View function
               input            -- Event function
               step             -- Step function
@@ -25,4 +28,11 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 coin <- loadBMP "assets\\Coin.bmp"
                 coinBling <- loadBMP "assets\\CoinBling.bmp"
                 return (Sprites kario ground brick questionMark brokenQuestionMark [coin, coinBling])
+
+loadLevels :: IO [String]
+loadLevels = do
+    fileList <- listDirectory "Levels"
+    mapM readFile (map ((++) "Levels\\") fileList)
+
+
 

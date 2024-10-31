@@ -12,8 +12,8 @@ view :: GameState -> IO Picture
 view = return . viewPure
 
 viewPure :: GameState -> Picture
-viewPure (GameMenu(MenuState s) _) = translate (-200) 0.0 (color red (text s))
-viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime} sprites@Sprites{karioImage, coinPictures}) = Pictures [
+viewPure (GameMenu(MenuState s) _ _) = translate (-200) 0.0 (color red (text s))
+viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime} sprites@Sprites{karioImage, coinPictures} _) = Pictures [
     drawKario kario karioImage,
     drawPlatforms platforms sprites,
     animateCoins coins coinPictures elapsedGameTime

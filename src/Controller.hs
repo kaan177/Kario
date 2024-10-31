@@ -8,6 +8,7 @@ import Model
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import System.Random
+import LevelImporter (levelBuilder)
 import Data.Maybe ( mapMaybe )
 
 --movement modifiers
@@ -26,10 +27,13 @@ karioMaxFallSpeed = 300
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs (GameMenu menuState s)   = do menu <- stepMenu secs menuState
-                                        return (GameMenu menu s)
-step secs (GameLevel levelState s) = do level <- stepLevel secs levelState
-                                        return (GameLevel level s)
+step secs (GameMenu menuState s l)   = do 
+    menu <- stepMenu secs menuState
+    return (GameMenu menu s l)  
+step secs (GameLevel levelState s l) = do 
+    level <- stepLevel secs levelState
+    return (GameLevel level s l)
+                                   
 
 -- | Handle one iteration of the menu
 stepMenu :: Float -> MenuState -> IO MenuState
@@ -86,12 +90,12 @@ input :: Event -> GameState -> IO GameState
 input e gstate = return (inputKey e gstate)
 
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu _ sprites) = GameLevel initialLevelState sprites                        --switching to level
-inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s) sprites) = GameMenu (MenuState (removeLast s)) sprites   --removing characters
-inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s) sprites) = GameMenu (MenuState (s ++ [c])) sprites                     --typing characters
-inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {kario}) sprites) = GameLevel levelState {                     --handling level input
+inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu _ sprites l) = GameLevel (levelBuilder (head l)) sprites l                       --switching to level
+inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (removeLast s)) sprites l  --removing characters
+inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (s ++ [c])) sprites l                    --typing characters
+inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {kario}) sprites l) = GameLevel levelState {              --handling level input
     kario = karioInput c ks kario                                                                                                    --handling kario related input
-    } sprites
+    } sprites l
 inputKey _ gstate = gstate                                                                                                           --edge cases without handling
 
 karioInput :: Char -> KeyState -> Kario -> Kario
