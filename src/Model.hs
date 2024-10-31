@@ -5,6 +5,24 @@ module Model where
 
 import Graphics.Gloss
 
+---------------------------------------------------------------
+-- | Collidable type class
+class Collidable a where
+    getBox :: a -> Hitbox
+
+instance Collidable Kario where
+    getBox Kario{hitbox} = hitbox
+instance Collidable Platform where
+    getBox (Ground hitbox)       = hitbox
+    getBox (Brick hitbox)        = hitbox
+    getBox (BreakBrick hitbox _) = hitbox
+    getBox (ItemBox hitbox _)    = hitbox
+    getBox (EmptyItemBox hitbox) = hitbox
+
+
+----------------------------------------------------------------
+-- | Model
+
 data Sprites = Sprites{
     karioImage :: Picture, 
     groundImage :: Picture,
@@ -64,8 +82,8 @@ initialState = GameMenu (MenuState "Kario")
 
 initialLevelState :: LevelState
 initialLevelState = LevelState {
-  kario = Kario (Hitbox (0,0) 20 20) 0 (10, 0) (0,0) Grounded,
-  platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
+  kario = Kario (Hitbox (-40,40) 30 45) 0 (0, 0) (0,0) Falling,
+  platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Ground (Hitbox ((-1) * gridSize,(-1) * gridSize) 30 30), Ground (Hitbox ((-2) * gridSize,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
   coins = [Coin (Hitbox (5 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
   elapsedGameTime = 0
   }
