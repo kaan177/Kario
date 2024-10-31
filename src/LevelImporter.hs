@@ -6,8 +6,7 @@ module LevelImporter (levelBuilder) where
 import Model
 import GHC.Float (floorFloat)
 
-
-levelBuilder :: String -> LevelState
+levelBuilder :: LevelContents -> LevelState
 levelBuilder s = recursiveLevelBuilder (listMaker s) emptyLevel
 
 recursiveLevelBuilder :: [(Char, Float, Float)] -> LevelState -> LevelState

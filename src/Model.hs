@@ -32,7 +32,9 @@ data Sprites = Sprites{
     coinPictures :: [Picture]
 }
 
-data GameState = GameLevel LevelState Sprites [(String)] | GameMenu MenuState Sprites [(String)]
+type LevelContents = String
+
+data GameState = GameLevel LevelState Sprites [LevelContents] | GameMenu MenuState Sprites [LevelContents]
 
 data LevelState = LevelState {
     kario :: Kario,

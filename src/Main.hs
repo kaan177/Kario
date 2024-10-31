@@ -32,7 +32,7 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
 loadLevels :: IO [String]
 loadLevels = do
     fileList <- listDirectory "Levels"
-    mapM readFile (map ((++) "Levels\\") fileList)
+    mapM (readFile . ("Levels\\" ++)) fileList
 
 
 

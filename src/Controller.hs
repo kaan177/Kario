@@ -90,13 +90,13 @@ input :: Event -> GameState -> IO GameState
 input e gstate = return (inputKey e gstate)
 
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu _ sprites l) = GameLevel (levelBuilder (head l)) sprites l                       --switching to level
-inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (removeLast s)) sprites l  --removing characters
-inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (s ++ [c])) sprites l                    --typing characters
-inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {kario}) sprites l) = GameLevel levelState {              --handling level input
-    kario = karioInput c ks kario                                                                                                    --handling kario related input
+inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu _ sprites l) = GameLevel (levelBuilder (head l)) sprites l                --switching to level
+inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (removeLast s)) sprites l --removing characters
+inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (s ++ [c])) sprites l                   --typing characters
+inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {kario}) sprites l) = GameLevel levelState {                     --handling level input
+    kario = karioInput c ks kario                                                                                                      --handling kario related input
     } sprites l
-inputKey _ gstate = gstate                                                                                                           --edge cases without handling
+inputKey _ gstate = gstate                                                                                                             --edge cases without handling
 
 karioInput :: Char -> KeyState -> Kario -> Kario
 karioInput 'a' Up kario                                                       = kario {desiredHorizontalVelocity = 0}
