@@ -22,6 +22,8 @@ data Sprites = Sprites{
     levelBoxImage :: Picture,
     selectionRingImage :: Picture,
     koombaImage :: Picture,
+    koopaImage :: Picture,
+    shellImage :: Picture,
     flagPoleImage :: Picture
 }
 
@@ -84,6 +86,8 @@ data Hitbox = Hitbox {
     width :: Width,
     height :: Height
     }  --origin in centre
+
+type Overlap = Hitbox
 
 data Airborne = Grounded | Falling | Rising deriving Eq
 

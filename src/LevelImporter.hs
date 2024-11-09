@@ -17,8 +17,8 @@ recursiveLevelBuilder (('G', x, y) : as) levelState@(LevelState {platforms}) = r
 recursiveLevelBuilder (('B', x, y) : as) levelState@(LevelState {platforms}) = recursiveLevelBuilder as levelState { platforms = Brick (Hitbox (x * gridSize, y * gridSize) 30 30) : platforms}
 recursiveLevelBuilder (('M', x, y) : as) levelState@(LevelState {platforms}) = recursiveLevelBuilder as levelState { platforms = ItemBox (Hitbox (x * gridSize, y * gridSize) 30 30) Mushroom : platforms}
 recursiveLevelBuilder (('S', x, y) : as) levelState@(LevelState {platforms}) = recursiveLevelBuilder as levelState { platforms = ItemBox (Hitbox (x * gridSize, y * gridSize) 30 30) Star : platforms}
-recursiveLevelBuilder (('g', x, y) : as) levelState@(LevelState {enemies}) = recursiveLevelBuilder as levelState {enemies = Koomba (Hitbox (x * gridSize + (30 - gridSize), y * gridSize + (45 - gridSize)) 30 45) (0,0) Exist : enemies }
-recursiveLevelBuilder (('F', x, y) : as) levelState@(LevelState {flagPole}) = recursiveLevelBuilder as levelState {flagPole = FlagPole (Hitbox (x * gridSize , y * gridSize + 135 ) 30 300)  }
+recursiveLevelBuilder (('g', x, y) : as) levelState@(LevelState {enemies}) = recursiveLevelBuilder as levelState {enemies = Koomba (Hitbox (x * gridSize + (30 - gridSize), y * gridSize + (30 - gridSize)) 30 30) (0,0) Exist : enemies }
+recursiveLevelBuilder (('F', x, y) : as) levelState@(LevelState {flagPole}) = recursiveLevelBuilder as levelState {flagPole = FlagPole (Hitbox (x * gridSize , y * gridSize + 135 ) 10 300)  }
 recursiveLevelBuilder (('O', x, y) : as) levelState = recursiveLevelBuilder as levelState
 recursiveLevelBuilder ((_, x, y) : as) levelState = error "Character in level loading is invalid."
 {-

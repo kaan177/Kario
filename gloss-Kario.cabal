@@ -26,4 +26,5 @@ executable gloss-Kario
                      , Movable
                      , EnemyLogic
                      , Accelerable
+                     , ImageLoading
   default-language:    Haskell2010

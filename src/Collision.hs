@@ -39,11 +39,11 @@ instance Collidable Coin where
 --------------------------------------------------------------------------------------------------------------
 --{COLLISION FUNCTIONS}
 
-getOverlaps :: (Collidable a, Collidable b) => a -> [b] -> [Hitbox]
+getOverlaps :: (Collidable a, Collidable b) => a -> [b] -> [Overlap]
 getOverlaps subject = mapMaybe (getOverlap (getBox subject) . getBox)
 
 --calculates the intersecting part of the hitboxes, useful for more advanced collision detection for movement
-getOverlap :: Hitbox -> Hitbox -> Maybe Hitbox
+getOverlap :: Hitbox -> Hitbox -> Maybe Overlap
 getOverlap b1@(Hitbox (x1, y1) w1 h1) b2@(Hitbox (x2, y2) w2 h2) | isOverlapping b1 b2 = Just $ Hitbox (xmin, xmax) (xmax - xmin) (ymax - ymin)
                                                                  | otherwise           = Nothing
   where

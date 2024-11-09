@@ -1,25 +1,7 @@
-module Main where
+module ImageLoading where
 
-import Controller
 import Model
-import View
-import ImageLoading
-
-import Graphics.Gloss.Interface.IO.Game
-import System.Directory (listDirectory)
-import Utils.Containers.Internal.StrictPair (StrictPair)
-
-main :: IO ()
-main = do sprites <- loadImages
-          levels <- loadLevels
-          coinScore <- loadCoins
-          playIO (InWindow "Kario" screenSize (0, 0)) -- Or FullScreen
-              (makeColor (14/255) (120/255) (224/255) 1)            -- Background color
-              60               -- Frames per second
-              (initialState sprites levels coinScore)  -- Initial state
-              view             -- View function
-              input            -- Event function
-              step             -- Step function
+import Graphics.Gloss (loadBMP)
 
 loadImages :: IO Sprites
 loadImages = do kario <- loadBMP "assets\\Kario.bmp"
@@ -33,6 +15,8 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 levelBox <- loadBMP "assets\\LevelBox.bmp"
                 selectionRing <- loadBMP "assets\\SelectionRing.bmp"
                 koomba <- loadBMP "assets\\Koomba.bmp"
+                koopa <- loadBMP "assets\\Koopa.bmp"
+                shell <- loadBMP "assets\\Shell.bmp"
                 flagPole <- loadBMP "assets\\FlagPole.bmp"
                 return Sprites {
                     karioImage = kario,
@@ -45,20 +29,7 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                     levelBoxImage = levelBox,
                     selectionRingImage = selectionRing,
                     koombaImage = koomba,
+                    koopaImage = koopa,
+                    shellImage = shell,
                     flagPoleImage = flagPole
                     }
-
-loadLevels :: IO [String]
-loadLevels = do
-    fileList <- listDirectory "Levels"
-    list <- mapM (readFile . ("Levels\\" ++)) fileList
-    return (reverse list)
-
-loadCoins :: IO CoinScore
-loadCoins = do 
-    coinString <- readFile "Coins\\Coins.txt" 
-    return (stringToCoinScore coinString)
-
-stringToCoinScore :: String -> CoinScore
-stringToCoinScore [] = 0
-stringToCoinScore s = read s
