@@ -11,7 +11,7 @@ levelBuilder s c = recursiveLevelBuilder (listMaker s) (emptyLevel c)
 
 recursiveLevelBuilder :: [(Char, Float, Float)] -> LevelState -> LevelState
 recursiveLevelBuilder [] l = l
-recursiveLevelBuilder (('K', x, y) : as) levelState@(LevelState {kario}) = recursiveLevelBuilder as levelState {kario = Kario (Hitbox (x * gridSize + (30 - gridSize), y * gridSize + (45 - gridSize)) 30 45) 0 (0, 0) (0,0) Grounded}
+recursiveLevelBuilder (('K', x, y) : as) levelState@(LevelState {kario}) = recursiveLevelBuilder as levelState {kario = Kario (Hitbox (x * gridSize + (30 - gridSize), y * gridSize + (45 - gridSize)) 30 45) 0 (0, 0) (0,0) Grounded Exist}
 recursiveLevelBuilder (('C', x, y) : as) levelState@(LevelState {coins}) = recursiveLevelBuilder as levelState {coins = Coin (Hitbox (x * gridSize, y * gridSize) 30 30) Bling Exist : coins}
 recursiveLevelBuilder (('G', x, y) : as) levelState@(LevelState {platforms}) = recursiveLevelBuilder as levelState { platforms = Ground (Hitbox (x * gridSize, y * gridSize) 30 30) : platforms}
 recursiveLevelBuilder (('B', x, y) : as) levelState@(LevelState {platforms}) = recursiveLevelBuilder as levelState { platforms = Brick (Hitbox (x * gridSize, y * gridSize) 30 30) : platforms}
@@ -35,7 +35,7 @@ F = FlagPole
 
 emptyLevel :: CoinScore -> LevelState
 emptyLevel c = LevelState{
-  kario = Kario (Hitbox (0,0) 20 20) 0 (10, 0) (0,0) Grounded,
+  kario = Kario (Hitbox (0,0) 20 20) 0 (10, 0) (0,0) Grounded Exist,
   platforms = [],
   coins = [],
   elapsedGameTime = 0,

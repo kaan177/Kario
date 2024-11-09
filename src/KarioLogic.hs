@@ -20,16 +20,20 @@ karioAirFriction = 3
 --applies all the functions to kario that make up a step
 stepKario :: Float -> [Platform] -> [Enemy] -> Kario -> Kario
 stepKario secs platforms enemies kario@Kario{karHitbox = Hitbox{pos = prevPos}} =
-  (moveAndCollide secs platforms . applyFriction secs . accelerateKario secs . applyGravity secs . handleEnemyCollisions enemies) kario 
+  (handleExistence secs . moveAndCollide secs platforms . applyFriction secs . accelerateKario secs . applyGravity secs . handleEnemyCollisions enemies) kario 
+
+handleExistence :: Float -> Kario -> Kario
+handleExistence _ k@Kario{karioExist = Exist}         = k
+handleExistence secs k@Kario{karioExist = RemoveIn x} = k{karioExist = RemoveIn (max 0 (x - secs))}
 
 handleEnemyCollisions :: [Enemy] -> Kario -> Kario
 handleEnemyCollisions enemies kario = foldr handleEnemyCollision kario $ getOverlaps kario enemies
 
 handleEnemyCollision :: Overlap -> Kario -> Kario    
 handleEnemyCollision Hitbox{width = overlapX, height = overlapY} kario 
-  | overlapX < overlapY = kario                                            --horizontal collision, should die here                                                                     
+  | overlapX < overlapY = kario{karioExist = RemoveIn 0}            --horizontal collision, should die here                                                                     
   | velY < 0            = updateVel (velX, karioJumpStrength) kario --jumps on enemy                                                                    
-  | otherwise           = kario                                            --vertical but not from above, also dies
+  | otherwise           = kario{karioExist = RemoveIn 0}            --vertical but not from above, also dies
   where (velX,velY) = getVel kario
 
 --by moving over the x-axis and y-axis seperately we avoid some bugs that arose from our collision implementation

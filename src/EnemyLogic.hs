@@ -43,10 +43,6 @@ handleCollision (prevX,prevY) Hitbox{width = overlapX, height = overlapY} enemy
     where (newX,newY) = getPos enemy
           (vx,vy)     = getVel enemy
 
-
-handleCollisions :: [Platform] -> Enemy -> Enemy
-handleCollisions = undefined
-
 handleVelocity :: Enemy -> Enemy
 handleVelocity enemy = case getVel enemy of
                          (0,0) -> setDefaultVelocity enemy

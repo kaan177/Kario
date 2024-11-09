@@ -1,7 +1,7 @@
 {-# language NamedFieldPuns #-}
 -- | This module defines how the state changes
 --   in response to time and user input
-module Controller where
+module Controller(step, input) where
 
 import Model
 import KarioLogic
@@ -28,11 +28,15 @@ karioMaxFallSpeed = 250
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs (GameMenu menuState s l)   = return (GameMenu (stepMenu secs menuState) s l )
-step secs (GameLevel levelState@LevelState{kario, flagPole, coinLevelScore} s l )| isColliding kario flagPole = do
+step secs (GameMenu menuState s l) 
+    = return (GameMenu (stepMenu secs menuState) s l )
+step secs (GameLevel levelState@LevelState{kario, flagPole, coinLevelScore} s l ) | isColliding kario flagPole = do
     _ <- writeFile "Coins\\Coins.txt" (show coinLevelScore)
     return (GameMenu (initialMenuState l coinLevelScore) s l )
-step secs (GameLevel levelState s l ) = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l ) --first handles the logged inputs and then handles all the other level logic
+step secs (GameLevel levelState@LevelState{kario = Kario{karioExist = RemoveIn 0}, coinLevelScore} s l) 
+    = return $ GameMenu (initialMenuState l coinLevelScore) s l
+step secs (GameLevel levelState s l )                                                                  
+    = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l ) --first handles the logged inputs and then handles all the other level logic
 
 -- | Handle one iteration of the menu
 stepMenu :: Float -> MenuState -> MenuState

@@ -36,14 +36,14 @@ type Inputs = [Char] --all keys that are currently down.
 type CoinScore = Int
 
 data LevelState = LevelState {
-    kario :: Kario,
-    platforms :: [Platform],
-    coins :: [Coin],
+    kario           :: Kario,
+    platforms       :: [Platform],
+    coins           :: [Coin],
     elapsedGameTime :: Float,
-    inputState :: Inputs,
-    enemies :: [Enemy],
-    flagPole :: FlagPole,
-    coinLevelScore :: CoinScore
+    inputState      :: Inputs,
+    enemies         :: [Enemy],
+    flagPole        :: FlagPole,
+    coinLevelScore  :: CoinScore
     }
 
 data MenuState = MenuState {
@@ -65,9 +65,10 @@ data ShouldExist = Exist
 data Kario = Kario {
     karHitbox :: Hitbox
     ,desiredHorizontalVelocity :: Float
-    ,karVel :: DirectionalVelocity
-    ,karAccel :: DirectionalAcceleration
-    ,airborne :: Airborne
+    ,karVel     :: DirectionalVelocity
+    ,karAccel   :: DirectionalAcceleration
+    ,airborne   :: Airborne
+    ,karioExist :: ShouldExist 
 }
 
 data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
