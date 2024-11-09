@@ -32,6 +32,10 @@ instance Collidable Enemy where
 instance Collidable FlagPole where
     getBox (FlagPole hitbox) = hitbox
     updateBox newBox (FlagPole _)    = FlagPole newBox
+
+instance Collidable Coin where
+    getBox (Coin hitbox _ _) = hitbox
+    updateBox newBox (Coin _ a b)    = Coin newBox a b
 --------------------------------------------------------------------------------------------------------------
 --{COLLISION FUNCTIONS}
 

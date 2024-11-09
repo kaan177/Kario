@@ -7,14 +7,16 @@ import View
 import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss (loadBMP)
 import System.Directory (listDirectory)
+import Utils.Containers.Internal.StrictPair (StrictPair)
 
 main :: IO ()
 main = do sprites <- loadImages
           levels <- loadLevels
+          coinScore <- loadCoins
           playIO (InWindow "Kario" screenSize (0, 0)) -- Or FullScreen
-              black            -- Background color
+              red            -- Background color
               60               -- Frames per second
-              (initialState sprites levels)  -- Initial state
+              (initialState sprites levels coinScore)  -- Initial state
               view             -- View function
               input            -- Event function
               step             -- Step function
@@ -52,5 +54,11 @@ loadLevels = do
     list <- mapM (readFile . ("Levels\\" ++)) fileList
     return (reverse list)
 
+loadCoins :: IO CoinScore
+loadCoins = do 
+    coinString <- readFile "Coins\\Coins.txt" 
+    return (stringToCoinScore coinString)
 
-
+stringToCoinScore :: String -> CoinScore
+stringToCoinScore [] = 0
+stringToCoinScore s = read s
