@@ -13,6 +13,7 @@ import Data.Data (ConstrRep(FloatConstr))
 import Data.Maybe ( fromMaybe, mapMaybe )
 import GHC.Clock (getMonotonicTimeNSec)
 import Data.List (delete)
+import Collision (isOverlapping, isColliding)
 --movement modifiers
 karioSpeed :: Float
 karioSpeed = 50
@@ -28,6 +29,7 @@ karioMaxFallSpeed = 250
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
 step secs (GameMenu menuState s l)   = return (GameMenu (stepMenu secs menuState) s l)
+step secs (GameLevel levelState@LevelState{kario, flagPole} s l)| isColliding kario flagPole = return (GameMenu (initialMenuState l) s l)
 step secs (GameLevel levelState s l) = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l) --first handles the logged inputs and then handles all the other level logic
 
 -- | Handle one iteration of the menu

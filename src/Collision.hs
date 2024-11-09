@@ -28,6 +28,10 @@ instance Collidable Platform where
 instance Collidable Enemy where
     getBox = enemyBox
     updateBox newBox e = e{enemyBox = newBox}
+
+instance Collidable FlagPole where
+    getBox (FlagPole hitbox) = hitbox
+    updateBox newBox (FlagPole _)    = FlagPole newBox
 --------------------------------------------------------------------------------------------------------------
 --{COLLISION FUNCTIONS}
 
@@ -56,3 +60,6 @@ isWithin Hitbox{pos = (hx, hy), width = w, height = h} (px, py) =
 
 hitboxToPoints :: Hitbox -> [Position]
 hitboxToPoints Hitbox{pos = (x, y), width = w, height = h} = [(x - (1/2 * w),y - (1/2 * h)), (x + (1/2 * w), y - (1/2 * h)), (x - (1/2 * w), y + (1/2 * h)),  (x + (1/2 * w), y + (1/2 * h))]
+
+isColliding :: (Collidable a, Collidable b) => a -> b -> Bool
+isColliding a b = isOverlapping (getBox a) (getBox b)
