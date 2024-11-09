@@ -1,7 +1,7 @@
 {-# language NamedFieldPuns #-}
 -- | This module defines how the state changes
 --   in response to time and user input
-module Controller where
+module Controller(step, input) where
 
 import Model
 import KarioLogic
@@ -13,7 +13,7 @@ import Data.Data (ConstrRep(FloatConstr))
 import Data.Maybe ( fromMaybe, mapMaybe )
 import GHC.Clock (getMonotonicTimeNSec)
 import Data.List (delete)
-import Collision (isOverlapping, isColliding)
+import Collision (isOverlapping, isColliding, getOverlaps)
 --movement modifiers
 karioSpeed :: Float
 karioSpeed = 50
@@ -28,11 +28,15 @@ karioMaxFallSpeed = 250
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs (GameMenu menuState s l)   = return (GameMenu (stepMenu secs menuState) s l )
-step secs (GameLevel levelState@LevelState{kario, flagPole, coinLevelScore} s l )| isColliding kario flagPole = do
+step secs (GameMenu menuState s l) 
+    = return (GameMenu (stepMenu secs menuState) s l )
+step secs (GameLevel levelState@LevelState{kario, flagPole, coinLevelScore} s l ) | isColliding kario flagPole = do
     _ <- writeFile "Coins\\Coins.txt" (show coinLevelScore)
     return (GameMenu (initialMenuState l coinLevelScore) s l )
-step secs (GameLevel levelState s l ) = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l ) --first handles the logged inputs and then handles all the other level logic
+step secs (GameLevel levelState@LevelState{kario = Kario{karioExist = RemoveIn 0}, coinLevelScore} s l) 
+    = return $ GameMenu (initialMenuState l coinLevelScore) s l
+step secs (GameLevel levelState s l )                                                                  
+    = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l ) --first handles the logged inputs and then handles all the other level logic
 
 -- | Handle one iteration of the menu
 stepMenu :: Float -> MenuState -> MenuState
@@ -40,15 +44,27 @@ stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
 stepLevel :: Float -> LevelState -> LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore}) =    levelState {
-    kario = stepKario secs platforms kario,  --manipulate kario
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore}) =    
+    let enemies' = handleExistence secs enemies in levelState {
+    kario = stepKario secs platforms enemies' kario,
     elapsedGameTime = elapsedGameTime + secs,
-    enemies = map (stepEnemy secs platforms kario) enemies,
+    enemies = map (stepEnemy secs platforms kario) enemies',
     coins = filter (not . isColliding kario) coins,
     coinLevelScore = coinLevelScore + length (filter (isColliding kario) coins)
     }
 
+--handleKarioEnemyCollisions :: [Enemy] -> Kario -> ([Enemy], Kario)
+--handleKarioEnemyCollisions enemies kario = foldr handleCollision ([], Kario) enemies
 
+--handleKarioEnemyCollision :: Enemy -> ([Enemy], Kario) -> ([Enemy], Kario)
+--handleCollision enemy (rest, kario) = 
+
+handleExistence :: Float -> [Enemy] -> [Enemy]
+handleExistence secs = foldr f []
+  where f enemy enemies = case enemyExist enemy of
+                          Exist      -> enemy : enemies
+                          RemoveIn 0 -> enemies
+                          RemoveIn x -> enemy{enemyExist = RemoveIn $ max 0 (x - secs)} : enemies
 
 ------------------------------------------------------------------------------------------
 -- | Handle user input

@@ -50,7 +50,7 @@ getOverlaps subject = mapMaybe (getOverlap (getBox subject) . getBox)
 
 --calculates the intersecting part of the hitboxes, useful for more advanced collision detection for movement
 getOverlap :: Hitbox -> Hitbox -> Maybe Overlap
-getOverlap b1@(Hitbox (x1, y1) w1 h1) b2@(Hitbox (x2, y2) w2 h2) | isOverlapping b1 b2 = Just $ Hitbox (xmin, xmax) (xmax - xmin) (ymax - ymin)
+getOverlap b1@(Hitbox (x1, y1) w1 h1) b2@(Hitbox (x2, y2) w2 h2) | isOverlapping b1 b2 = Just $ Hitbox (xmin, ymin) (xmax - xmin) (ymax - ymin)
                                                                  | otherwise           = Nothing
   where
     xmin = max x1 x2
