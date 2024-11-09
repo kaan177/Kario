@@ -7,6 +7,7 @@ import Graphics.Gloss
 import Model
 import GHC.Float (int2Float)
 import Data.Fixed
+import Positioning
 
 view :: GameState -> IO Picture
 view = return . viewPure
@@ -21,7 +22,6 @@ viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime} sprite
 
 data Square = Sqr Point Point Point Point
 
-
 sqrToList :: Square -> [Point]
 sqrToList (Sqr bl tl tr br) = [bl, tl, tr, br]
 
@@ -33,7 +33,7 @@ drawSquares 0 = polygon (sqrToList (sqrFromSize 10))
 drawSquares n = Pictures [polygon (sqrToList (sqrFromSize 10)), translate 20 0 (drawSquares (n - 1))]
 
 drawKario :: Kario -> Picture -> Picture
-drawKario Kario{hitbox = Hitbox {pos = (x,y)}} = translate x y
+drawKario kario = let (x,y) = getPos kario in translate x y
 
 drawPlatforms :: [Platform] -> Sprites -> Picture
 drawPlatforms list sprites = Pictures (map (drawPlatform sprites) list)
@@ -50,3 +50,6 @@ animateCoins list p time = Pictures (map (animateCoin p time) list)
 animateCoin :: [Picture] -> Float -> Coin -> Picture
 animateCoin p time (Coin (Hitbox (x,y) _ _) Bling _) | mod' time 5 <= 4 = translate x y (head p)
                                                      | otherwise = translate x y (head $ tail p)
+
+drawEnemy :: Sprites -> Enemy -> Picture
+drawEnemy s k@Koomba{} = let (x,y) = getPos k in Translate x y (koombaImage s) 

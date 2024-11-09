@@ -1,6 +1,35 @@
+{-# language NamedFieldPuns #-}
+
 module Collision where
 import Model
 import Data.Maybe(mapMaybe)
+
+-- | Collidable type class
+class Collidable a where
+    getBox    :: a -> Hitbox
+    updateBox :: Hitbox -> a -> a  
+
+instance Collidable Kario where
+    getBox Kario{karHitbox} = karHitbox
+    updateBox newbox kario = kario{karHitbox = newbox} 
+
+instance Collidable Platform where
+    getBox (Ground hitbox)               = hitbox
+    getBox (Brick hitbox)                = hitbox
+    getBox (BreakBrick hitbox _)         = hitbox
+    getBox (ItemBox hitbox _)            = hitbox
+    getBox (EmptyItemBox hitbox)         = hitbox
+    updateBox newBox (Ground _)          = Ground newBox      
+    updateBox newBox (Brick _)           = Brick newBox
+    updateBox newBox (BreakBrick _ shEx) = BreakBrick newBox shEx     
+    updateBox newBox (ItemBox _ pt)      = ItemBox newBox pt            
+    updateBox newBox (EmptyItemBox _)    = EmptyItemBox newBox            
+
+instance Collidable Enemy where
+    getBox = enemyBox
+    updateBox newBox e = e{enemyBox = newBox}
+--------------------------------------------------------------------------------------------------------------
+--{COLLISION FUNCTIONS}
 
 getOverlaps :: (Collidable a, Collidable b) => a -> [b] -> [Hitbox]
 getOverlaps subject = mapMaybe (getOverlap (getBox subject) . getBox)

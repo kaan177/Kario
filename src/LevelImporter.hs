@@ -2,7 +2,6 @@
 
 module LevelImporter (levelBuilder) where
 
-
 import Model
 import GHC.Float (floorFloat)
 

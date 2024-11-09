@@ -27,7 +27,8 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 brokenQuestionMark <- loadBMP "assets\\BrokenQuestionMarkBlock.bmp"
                 coin <- loadBMP "assets\\Coin.bmp"
                 coinBling <- loadBMP "assets\\CoinBling.bmp"
-                return (Sprites kario ground brick questionMark brokenQuestionMark [coin, coinBling])
+                koomba <- loadBMP "assets\\Koomba.bmp"
+                return (Sprites kario ground brick questionMark brokenQuestionMark [coin, coinBling] koomba)
 
 loadLevels :: IO [String]
 loadLevels = do

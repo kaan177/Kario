@@ -2,23 +2,7 @@
 -- | This module contains the data types
 --   which represent the state of the game
 module Model where
-
 import Graphics.Gloss
-
----------------------------------------------------------------
--- | Collidable type class
-class Collidable a where
-    getBox :: a -> Hitbox
-
-instance Collidable Kario where
-    getBox Kario{hitbox} = hitbox
-instance Collidable Platform where
-    getBox (Ground hitbox)       = hitbox
-    getBox (Brick hitbox)        = hitbox
-    getBox (BreakBrick hitbox _) = hitbox
-    getBox (ItemBox hitbox _)    = hitbox
-    getBox (EmptyItemBox hitbox) = hitbox
-
 
 ----------------------------------------------------------------
 -- | Model
@@ -29,7 +13,8 @@ data Sprites = Sprites{
     brickImage :: Picture,
     questionMarkImage :: Picture,
     brokenQuestionMarkImage :: Picture,
-    coinPictures :: [Picture]
+    coinPictures :: [Picture],
+    koombaImage :: Picture
 }
 
 type LevelContents = String
@@ -43,7 +28,8 @@ data LevelState = LevelState {
     platforms :: [Platform],
     coins :: [Coin],
     elapsedGameTime :: Float,
-    inputState :: Inputs
+    inputState :: Inputs,
+    enemies :: [Enemy]
     }
 
 data MenuState = MenuState GameName
@@ -56,12 +42,17 @@ type DirectionalAcceleration = Vector
 data ShouldExist = Exist | RemoveIn Int
 
 data Kario = Kario {
-    hitbox :: Hitbox
+    karHitbox :: Hitbox
     ,desiredHorizontalVelocity :: Float
-    ,dirVelocity :: DirectionalVelocity
-    ,dirAccel :: DirectionalAcceleration
+    ,karVel :: DirectionalVelocity
+    ,karAccel :: DirectionalAcceleration
     ,airborne :: Airborne
 }
+
+data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
+           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }     
+           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
+
 data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUpType | EmptyItemBox Hitbox
 
 data PowerUpType = Mushroom | Star
@@ -91,7 +82,8 @@ initialLevelState = LevelState {
   platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Ground (Hitbox ((-1) * gridSize,(-1) * gridSize) 30 30), Ground (Hitbox ((-2) * gridSize,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
   coins = [Coin (Hitbox (0 * gridSize, 0 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
   elapsedGameTime = 0,
-  inputState = []
+  inputState = [],
+  enemies = []
   }
 
 
