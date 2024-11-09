@@ -33,6 +33,8 @@ data GameState = GameLevel LevelState Sprites [LevelContents] | GameMenu MenuSta
 
 type Inputs = [Char] --all keys that are currently down.
 
+type CoinScore = Int
+
 data LevelState = LevelState {
     kario :: Kario,
     platforms :: [Platform],
@@ -40,14 +42,16 @@ data LevelState = LevelState {
     elapsedGameTime :: Float,
     inputState :: Inputs,
     enemies :: [Enemy],
-    flagPole :: FlagPole
+    flagPole :: FlagPole,
+    coinLevelScore :: CoinScore
     }
 
 data MenuState = MenuState {
     selectedLevel :: Maybe Int,
     gameScreen :: GameScreen,
     levelButtons :: [LevelButton],
-    selector :: Maybe Selector
+    selector :: Maybe Selector,
+    coinMenuScore :: CoinScore
 }
 
 type Position = Point
@@ -94,11 +98,11 @@ gridSize :: Float
 gridSize = 30
 type GameName = String
 
-initialState :: Sprites -> [String] -> GameState
-initialState s l = GameMenu (initialMenuState l) s l
+initialState :: Sprites -> [String] -> CoinScore -> GameState
+initialState s l c = GameMenu (initialMenuState l c) s l 
 
-initialMenuState :: [String] -> MenuState
-initialMenuState l =
+initialMenuState :: [String] -> CoinScore -> MenuState
+initialMenuState l c =
     let selectedLevelInt = if Prelude.null l then Nothing
             else Just 0 in
     let selectedLevelObject = if Prelude.null l then Nothing
@@ -107,7 +111,8 @@ initialMenuState l =
     selectedLevel = selectedLevelInt,
     gameScreen = GameScreen $ Hitbox ((\(x,y) -> (0, 0)) screenSize) 0 0,
     levelButtons = generateLevelButtons l,
-    selector = selectedLevelObject
+    selector = selectedLevelObject,
+    coinMenuScore = c
 }
 
 screenSize :: (Int,Int)

@@ -4,9 +4,10 @@ module LevelImporter (levelBuilder) where
 
 import Model
 import GHC.Float (floorFloat)
+import GHC.IO.Encoding.CodePage (codePageEncoding)
 
-levelBuilder :: LevelContents -> LevelState
-levelBuilder s = recursiveLevelBuilder (listMaker s) emptyLevel
+levelBuilder :: LevelContents -> CoinScore -> LevelState
+levelBuilder s c = recursiveLevelBuilder (listMaker s) (emptyLevel c)
 
 recursiveLevelBuilder :: [(Char, Float, Float)] -> LevelState -> LevelState
 recursiveLevelBuilder [] l = l
@@ -32,15 +33,16 @@ O = air (grote o niet nul)
 F = FlagPole
 -}
 
-emptyLevel :: LevelState
-emptyLevel = LevelState{
+emptyLevel :: CoinScore -> LevelState
+emptyLevel c = LevelState{
   kario = Kario (Hitbox (0,0) 20 20) 0 (10, 0) (0,0) Grounded,
   platforms = [],
   coins = [],
   elapsedGameTime = 0,
   inputState = [], 
   enemies = [],
-  flagPole = FlagPole(Hitbox (150,135)30 300)
+  flagPole = FlagPole(Hitbox (150,135)30 300),
+  coinLevelScore = c
 }
 
 listMaker :: String -> [(Char, Float, Float)]
