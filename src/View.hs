@@ -15,13 +15,14 @@ view = return . viewPure
 
 viewPure :: GameState -> Picture
 viewPure (GameMenu menu@MenuState {} s _ ) = drawMenu menu s 
-viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore} sprites@Sprites{karioImage, coinPictures} _ ) = Pictures [
+viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore, powerups} sprites@Sprites{karioImage, coinPictures} _ ) = Pictures [
     drawKario kario karioImage,
     drawPlatforms platforms sprites,
     animateCoins coins coinPictures elapsedGameTime,
     Pictures $ map (drawEnemy sprites) enemies,     --draw all enemies
     drawFlagPole sprites flagPole,
-    drawCoinCounter coinLevelScore
+    drawCoinCounter coinLevelScore,
+    Pictures (map (drawPowerUps sprites) powerups)
     ]
 
 data Square = Sqr Point Point Point Point
@@ -62,3 +63,6 @@ drawEnemy s k@Koomba{} = let (x,y) = getPos k in Translate x y (koombaImage s)
 drawFlagPole :: Sprites -> FlagPole -> Picture
 drawFlagPole s f@FlagPole{} = let (x,y) = getPos f in Translate x y (flagPoleImage s)
 
+drawPowerUps :: Sprites -> PowerUp -> Picture
+drawPowerUps s p@(Mushroom _) = let (x,y) = getPos p in Translate x y (mushroomImage s)
+drawPowerUps s p@(Star _) = let (x,y) = getPos p in Translate x y (starImage s)

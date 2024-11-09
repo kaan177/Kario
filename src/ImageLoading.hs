@@ -18,6 +18,8 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 koopa <- loadBMP "assets\\Koopa.bmp"
                 shell <- loadBMP "assets\\Shell.bmp"
                 flagPole <- loadBMP "assets\\FlagPole.bmp"
+                star <- loadBMP "assets\\Star.bmp"
+                mushroom <- loadBMP "assets\\Mushroom.bmp"
                 return Sprites {
                     karioImage = kario,
                     groundImage = ground,
@@ -31,5 +33,7 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                     koombaImage = koomba,
                     koopaImage = koopa,
                     shellImage = shell,
-                    flagPoleImage = flagPole
+                    flagPoleImage = flagPole,
+                    starImage = star,
+                    mushroomImage = mushroom
                     }

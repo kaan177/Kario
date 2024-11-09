@@ -26,3 +26,7 @@ instance Movable Kario where
 
 instance Movable Enemy where
   getVel = enemyVel
+
+instance Movable PowerUp where
+  getVel (Mushroom _ vel) = vel
+  getVel (Star _ vel) = vel

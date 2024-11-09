@@ -36,6 +36,12 @@ instance Collidable FlagPole where
 instance Collidable Coin where
     getBox (Coin hitbox _ _) = hitbox
     updateBox newBox (Coin _ a b)    = Coin newBox a b
+
+instance Collidable PowerUp where
+    getBox (Mushroom hitbox _) = hitbox
+    getBox (Star hitbox _) = hitbox
+    updateBox newBox (Mushroom _ vel) = Mushroom newBox vel
+    updateBox newBox (Star _ vel) = Star newBox vel
 --------------------------------------------------------------------------------------------------------------
 --{COLLISION FUNCTIONS}
 

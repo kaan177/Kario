@@ -15,6 +15,12 @@ instance Accelerable Kario where
 instance Accelerable Enemy where
     updateVel vel enemy = enemy{enemyVel = vel} 
 
+instance Accelerable PowerUp where 
+    updateVel vel (Mushroom h _) = Mushroom h vel
+    updateVel vel (Star h _) = Star h vel
+
+
+
 gravity :: Float
 gravity = 500
 

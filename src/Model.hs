@@ -24,7 +24,9 @@ data Sprites = Sprites{
     koombaImage :: Picture,
     koopaImage :: Picture,
     shellImage :: Picture,
-    flagPoleImage :: Picture
+    flagPoleImage :: Picture,
+    starImage :: Picture,
+    mushroomImage :: Picture
 }
 
 type LevelContents = String
@@ -42,6 +44,7 @@ data LevelState = LevelState {
     elapsedGameTime :: Float,
     inputState :: Inputs,
     enemies :: [Enemy],
+    powerups :: [PowerUp],
     flagPole :: FlagPole,
     coinLevelScore :: CoinScore
     }
@@ -67,15 +70,17 @@ data Kario = Kario {
     ,karVel :: DirectionalVelocity
     ,karAccel :: DirectionalAcceleration
     ,airborne :: Airborne
+    ,powerUp :: PowerUpType
 }
 
 data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
            | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }     
            | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
 
-data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUpType | EmptyItemBox Hitbox
+data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
 
-data PowerUpType = Mushroom | Star
+data PowerUpType = Big | Invincible | Small
+data PowerUp = Mushroom Hitbox DirectionalVelocity | Star Hitbox DirectionalVelocity
 
 data Coin = Coin Hitbox CoinAnimation ShouldExist
 
