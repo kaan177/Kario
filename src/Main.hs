@@ -3,46 +3,21 @@ module Main where
 import Controller
 import Model
 import View
+import ImageLoading
 
 import Graphics.Gloss.Interface.IO.Game
-import Graphics.Gloss (loadBMP)
 import System.Directory (listDirectory)
 
 main :: IO ()
 main = do sprites <- loadImages
           levels <- loadLevels
-          playIO (InWindow "Kario" screenSize (0, 0)) -- Or FullScreen
-              black            -- Background color
-              60               -- Frames per second
-              (initialState sprites levels)  -- Initial state
-              view             -- View function
-              input            -- Event function
-              step             -- Step function
-
-loadImages :: IO Sprites
-loadImages = do kario <- loadBMP "assets\\Kario.bmp"
-                ground <- loadBMP "assets\\Ground.bmp"
-                brick <- loadBMP "assets\\Brick.bmp"
-                questionMark <- loadBMP "assets\\QuestionMarkBlock.bmp"
-                brokenQuestionMark <- loadBMP "assets\\BrokenQuestionMarkBlock.bmp"
-                coin <- loadBMP "assets\\Coin.bmp"
-                coinBling <- loadBMP "assets\\CoinBling.bmp"
-                menu <- loadBMP "assets\\StartScreen.bmp"
-                levelBox <- loadBMP "assets\\LevelBox.bmp"
-                selectionRing <- loadBMP "assets\\SelectionRing.bmp"
-                koomba <- loadBMP "assets\\Koomba.bmp"
-                return Sprites {
-                    karioImage = kario,
-                    groundImage = ground,
-                    brickImage = brick,
-                    questionMarkImage = questionMark,
-                    brokenQuestionMarkImage = brokenQuestionMark,
-                    coinPictures =  [coin, coinBling],
-                    menuImage = menu,
-                    levelBoxImage = levelBox,
-                    selectionRingImage = selectionRing,
-                    koombaImage = koomba
-                    }
+          playIO (InWindow "Kario" screenSize (0, 0))   -- Or FullScreen
+              (makeColor (14/255) (120/255) (224/255) 1) -- Background color
+              60                                        -- Frames per second
+              (initialState sprites levels)             -- Initial state
+              view                                      -- View function
+              input                                     -- Event function
+              step                                      -- Step function
 
 loadLevels :: IO [String]
 loadLevels = do
