@@ -13,7 +13,7 @@ import Data.Data (ConstrRep(FloatConstr))
 import Data.Maybe ( fromMaybe, mapMaybe )
 import GHC.Clock (getMonotonicTimeNSec)
 import Data.List (delete)
-import Collision (isOverlapping, isColliding)
+import Collision (isOverlapping, isColliding, getOverlaps)
 --movement modifiers
 karioSpeed :: Float
 karioSpeed = 50
@@ -38,11 +38,25 @@ stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
 stepLevel :: Float -> LevelState -> LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies}) = levelState {
-    kario = stepKario secs platforms kario,  --manipulate kario
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies}) = 
+    let enemies' = handleExistence secs enemies in levelState {
+    kario = stepKario secs platforms enemies' kario,
     elapsedGameTime = elapsedGameTime + secs,
-    enemies = map (stepEnemy secs platforms kario) enemies
+    enemies = map (stepEnemy secs platforms kario) enemies'
     }
+
+--handleKarioEnemyCollisions :: [Enemy] -> Kario -> ([Enemy], Kario)
+--handleKarioEnemyCollisions enemies kario = foldr handleCollision ([], Kario) enemies
+
+--handleKarioEnemyCollision :: Enemy -> ([Enemy], Kario) -> ([Enemy], Kario)
+--handleCollision enemy (rest, kario) = 
+
+handleExistence :: Float -> [Enemy] -> [Enemy]
+handleExistence secs = foldr f []
+  where f enemy enemies = case enemyExist enemy of
+                          Exist      -> enemy : enemies
+                          RemoveIn 0 -> enemies
+                          RemoveIn x -> enemy{enemyExist = RemoveIn $ max 0 (x - secs)} : enemies
 
 ------------------------------------------------------------------------------------------
 -- | Handle user input

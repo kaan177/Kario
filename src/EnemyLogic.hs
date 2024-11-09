@@ -12,13 +12,26 @@ import Data.IntMap (update)
 
 --should add logic for when out of screen not move
 stepEnemy :: Float -> [Platform] -> Kario -> Enemy -> Enemy
-stepEnemy secs platforms kario enemy = let prevPos = getPos enemy in moveAndCollide secs platforms . applyGravity secs . handleVelocity $ enemy
+stepEnemy secs platforms kario enemy = let prevPos = getPos enemy in moveAndCollide secs platforms . applyGravity secs . handleVelocity . checkKarioCollison kario $ enemy
+
+checkKarioCollison :: Kario -> Enemy -> Enemy
+checkKarioCollison kario enemy = case getOverlap (getBox kario) (getBox enemy) of
+    Nothing      -> enemy
+    Just overlap -> handleKarioCollision overlap kario enemy 
+
+handleKarioCollision :: Overlap -> Kario -> Enemy -> Enemy
+handleKarioCollision Hitbox{width = overX, height = overY} kario enemy
+  | overX < overY = enemy                           --enemy does not change, kario dies
+  | karVelY < 0   = enemy{enemyExist = RemoveIn 0}  --kario jumps on enemy, enemy dies
+  | otherwise     = enemy                           --enemy does not change, kario dies
+    where karVelY = snd $ getVel kario
+
 
 --by moving over the x-axis and y-axis seperately we avoid some bugs that arose from our collision implementation 
 moveAndCollide :: Float -> [Platform] -> Enemy -> Enemy
 moveAndCollide secs platforms enemy = handlePlatformCollisions (getPos enemy') platforms . moveY secs $ enemy'
     where
-        enemy' = handlePlatformCollisions (getPos enemy) platforms . moveX secs $ enemy 
+        enemy' = handlePlatformCollisions (getPos enemy) platforms . moveX secs $ enemy
 
 handlePlatformCollisions :: Position -> [Platform] -> Enemy -> Enemy
 handlePlatformCollisions prevPos platforms movedEnemy = foldr (handleCollision prevPos) movedEnemy $ getOverlaps movedEnemy platforms

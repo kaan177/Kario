@@ -55,7 +55,8 @@ type Width = Float
 type Height = Float
 type DirectionalVelocity = Vector
 type DirectionalAcceleration = Vector
-data ShouldExist = Exist | RemoveIn Int
+data ShouldExist = Exist 
+                 | RemoveIn Float
 
 data Kario = Kario {
     karHitbox :: Hitbox
@@ -108,16 +109,6 @@ initialMenuState l =
     levelButtons = generateLevelButtons l,
     selector = selectedLevelObject
 }
-
-initialLevelState :: LevelState
-initialLevelState = LevelState {
-  kario = Kario (Hitbox (-40,50) 30 45) 0 (0, 0) (0,0) Falling,
-  platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Ground (Hitbox ((-1) * gridSize,(-1) * gridSize) 30 30), Ground (Hitbox ((-2) * gridSize,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
-  coins = [Coin (Hitbox (0 * gridSize, 0 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
-  elapsedGameTime = 0,
-  inputState = [],
-  enemies = []
-  }
 
 screenSize :: (Int,Int)
 screenSize = (600,600)
