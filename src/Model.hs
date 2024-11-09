@@ -6,6 +6,7 @@ import Graphics.Gloss
 import GHC.Float (int2Float)
 import Data.Sequence
 import Data.Foldable
+import GHC.RTS.Flags (ProfFlags)
 
 ----------------------------------------------------------------
 -- | Model
@@ -20,7 +21,8 @@ data Sprites = Sprites{
     menuImage :: Picture,
     levelBoxImage :: Picture,
     selectionRingImage :: Picture,
-    koombaImage :: Picture
+    koombaImage :: Picture,
+    flagPoleImage :: Picture
 }
 
 type LevelContents = String
@@ -35,7 +37,8 @@ data LevelState = LevelState {
     coins :: [Coin],
     elapsedGameTime :: Float,
     inputState :: Inputs,
-    enemies :: [Enemy]
+    enemies :: [Enemy],
+    flagPole :: FlagPole
     }
 
 data MenuState = MenuState {
@@ -69,6 +72,8 @@ data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | I
 data PowerUpType = Mushroom | Star
 
 data Coin = Coin Hitbox CoinAnimation ShouldExist
+
+data FlagPole = FlagPole Hitbox
 
 data Hitbox = Hitbox {
     pos :: Position,

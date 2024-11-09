@@ -31,6 +31,7 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 levelBox <- loadBMP "assets\\LevelBox.bmp"
                 selectionRing <- loadBMP "assets\\SelectionRing.bmp"
                 koomba <- loadBMP "assets\\Koomba.bmp"
+                flagPole <- loadBMP "assets\\FlagPole.bmp"
                 return Sprites {
                     karioImage = kario,
                     groundImage = ground,
@@ -41,7 +42,8 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                     menuImage = menu,
                     levelBoxImage = levelBox,
                     selectionRingImage = selectionRing,
-                    koombaImage = koomba
+                    koombaImage = koomba,
+                    flagPoleImage = flagPole
                     }
 
 loadLevels :: IO [String]
