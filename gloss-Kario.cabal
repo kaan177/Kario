@@ -22,4 +22,6 @@ executable gloss-Kario
                      , KarioLogic
                      , Positioning
                      , Movable
+                     , EnemyLogic
+                     , Accelerable
   default-language:    Haskell2010

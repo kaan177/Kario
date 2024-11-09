@@ -1,10 +1,10 @@
-{-# language NamedFieldPuns #-}
-
+{-# LANGUAGE NamedFieldPuns #-}
 module KarioLogic(stepKario, karioInput) where
 
 import Model
 import Collision
 import Movable
+import Accelerable
 
 --movement modifiers
 karioSpeed :: Float
@@ -15,15 +15,11 @@ karioGroundFriction :: Float
 karioGroundFriction = 20
 karioAirFriction :: Float
 karioAirFriction = 3
-karioGravity :: Float
-karioGravity = 500
-karioMaxFallSpeed :: Float
-karioMaxFallSpeed = 300
 
 --applies all the functions to kario that make up a step
 stepKario :: Float -> [Platform] -> Kario -> Kario
 stepKario secs platforms kario@Kario{karHitbox = Hitbox{pos = prevPos}} =
-  (handleKarioPlatformCollisions prevPos platforms . move secs . applyFrictionToKario secs . accelerateKario secs . applyGravityToKario secs) kario 
+  (handleKarioPlatformCollisions prevPos platforms . move secs . applyFrictionToKario secs . accelerateKario secs . applyGravity secs) kario 
 
 -- handles the collision between kario and all the platforms. Determines whether collisions are horizontal or vertical and acts accordingly.
 handleKarioPlatformCollisions :: Position -> [Platform] -> Kario -> Kario
@@ -49,11 +45,6 @@ applyFrictionToKario secs kario@Kario{karVel = (velX, velY), airborne, desiredHo
   where
     friction Grounded = karioGroundFriction
     friction _        = karioAirFriction
-
---accelerates kario by the set gravity. Does not accelerate past the max fall speed
-applyGravityToKario :: Float -> Kario -> Kario
-applyGravityToKario secs kario@Kario{karVel = (velX, velY)} = kario{karVel = (velX, max (velY - secs * karioGravity) (-karioMaxFallSpeed))}
-
 
 -----------------------------------------------------------------------------------------------------------------------------------
 --{INPUT}

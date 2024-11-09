@@ -6,6 +6,7 @@ module Controller where
 import Model
 import KarioLogic
 import Graphics.Gloss
+import EnemyLogic
 import Graphics.Gloss.Interface.IO.Game
 import LevelImporter (levelBuilder)
 import Data.Maybe ( mapMaybe )
@@ -22,9 +23,10 @@ stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
 stepLevel :: Float -> LevelState -> LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms}) = levelState {
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies}) = levelState {
     kario = stepKario secs platforms kario,  --manipulate kario
-    elapsedGameTime = elapsedGameTime + secs
+    elapsedGameTime = elapsedGameTime + secs,
+    enemies = map (stepEnemy secs platforms kario) enemies
     }
 
 ------------------------------------------------------------------------------------------
