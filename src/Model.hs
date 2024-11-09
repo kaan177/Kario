@@ -39,7 +39,6 @@ data LevelState = LevelState {
     }
 
 data MenuState = MenuState {
-    loadedLevels :: LoadedLevels,
     selectedLevel :: Maybe Int,
     gameScreen :: GameScreen,
     levelButtons :: [LevelButton],
@@ -86,7 +85,7 @@ gridSize = 30
 type GameName = String
 
 initialState :: Sprites -> [String] -> GameState
-initialState s l = GameMenu (initialMenuState l) s (LoadedLevels l)
+initialState s l = GameMenu (initialMenuState l) s l
 
 initialMenuState :: [String] -> MenuState
 initialMenuState l =
@@ -95,7 +94,6 @@ initialMenuState l =
     let selectedLevelObject = if Prelude.null l then Nothing
             else Just generateSelector in
     MenuState{
-    loadedLevels = LoadedLevels l,
     selectedLevel = selectedLevelInt,
     gameScreen = GameScreen $ Hitbox ((\(x,y) -> (0, 0)) screenSize) 0 0,
     levelButtons = generateLevelButtons l,

@@ -10,9 +10,8 @@ import EnemyLogic
 import Graphics.Gloss.Interface.IO.Game
 import LevelImporter (levelBuilder)
 import Data.Data (ConstrRep(FloatConstr))
-import Data.Maybe ( fromMaybe )
+import Data.Maybe ( fromMaybe, mapMaybe )
 import GHC.Clock (getMonotonicTimeNSec)
-import Data.Maybe ( mapMaybe )
 import Data.List (delete)
 --movement modifiers
 karioSpeed :: Float
@@ -55,7 +54,7 @@ inputKey e menu@GameMenu {} = menuStateInput e menu                             
 inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {inputState}) sprites l) = GameLevel (levelState {
     inputState = logInput c ks inputState                                                                                --logging level input
     }) sprites l
-inputKey _ gstate = gstate        
+inputKey _ gstate = gstate
 
 logInput :: Char -> KeyState -> Inputs -> Inputs
 logInput c Down = (c:)
@@ -79,17 +78,17 @@ menuStateInput (EventKey (SpecialKey KeyEnter) Down _ _)  = menuEnterPress
 menuStateInput e = id
 
 menuRightPress :: GameState -> GameState
-menuRightPress g@(GameMenu MenuState {selectedLevel = Just i} _ (LoadedLevels l)) | i >= length l - 1 = g
-menuRightPress g@(GameMenu m@MenuState {selectedLevel = Just i} p (LoadedLevels l))  = GameMenu m{selectedLevel = Just (i + 1), selector = Just (Selector (Hitbox (buttonPosition (i + 1)) 0 0))} p (LoadedLevels l)
+menuRightPress g@(GameMenu MenuState {selectedLevel = Just i} _ l) | i >= length l - 1 = g
+menuRightPress g@(GameMenu m@MenuState {selectedLevel = Just i} p l)  = GameMenu m{selectedLevel = Just (i + 1), selector = Just (Selector (Hitbox (buttonPosition (i + 1)) 0 0))} p l
 menuRightPress g = g
 
 menuLeftPress :: GameState -> GameState
-menuLeftPress g@(GameMenu MenuState {selectedLevel = Just i} _ (LoadedLevels l)) | i <= 0 = g
-menuLeftPress g@(GameMenu m@MenuState {selectedLevel = Just i} p (LoadedLevels l))  = GameMenu m{selectedLevel = Just (i - 1), selector = Just (Selector (Hitbox (buttonPosition (i - 1)) 0 0))} p (LoadedLevels l)
+menuLeftPress g@(GameMenu MenuState {selectedLevel = Just i} _ l) | i <= 0 = g
+menuLeftPress g@(GameMenu m@MenuState {selectedLevel = Just i} p l)  = GameMenu m{selectedLevel = Just (i - 1), selector = Just (Selector (Hitbox (buttonPosition (i - 1)) 0 0))} p l
 menuLeftPress g = g
 
 menuEnterPress :: GameState -> GameState
-menuEnterPress (GameMenu MenuState {selectedLevel = Just i} p (LoadedLevels l)) = GameLevel (levelBuilder (l !! i)) p (LoadedLevels l)
+menuEnterPress (GameMenu MenuState {selectedLevel = Just i} p l) = GameLevel (levelBuilder (l !! i)) p l
 menuEnterPress g = g
 --------------------------------------------------------------------------------------------
 
