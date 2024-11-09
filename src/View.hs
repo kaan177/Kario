@@ -6,13 +6,14 @@ module View where
 import Graphics.Gloss
 import Model
 import GHC.Float (int2Float)
+import MenuDrawer
 import Data.Fixed
 
 view :: GameState -> IO Picture
 view = return . viewPure
 
 viewPure :: GameState -> Picture
-viewPure (GameMenu(MenuState s) _ _) = translate (-200) 0.0 (color red (text s))
+viewPure (GameMenu menu@MenuState {} s _) = drawMenu menu s
 viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime} sprites@Sprites{karioImage, coinPictures} _) = Pictures [
     drawKario kario karioImage,
     drawPlatforms platforms sprites,
@@ -21,7 +22,7 @@ viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime} sprite
 
 data Square = Sqr Point Point Point Point
 
-
+------------------------------In game stuf----------------------------------------------------------------------------------
 sqrToList :: Square -> [Point]
 sqrToList (Sqr bl tl tr br) = [bl, tl, tr, br]
 
@@ -50,3 +51,5 @@ animateCoins list p time = Pictures (map (animateCoin p time) list)
 animateCoin :: [Picture] -> Float -> Coin -> Picture
 animateCoin p time (Coin (Hitbox (x,y) _ _) Bling _) | mod' time 5 <= 4 = translate x y (head p)
                                                      | otherwise = translate x y (head $ tail p)
+
+

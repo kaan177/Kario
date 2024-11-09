@@ -10,6 +10,8 @@ import Graphics.Gloss.Interface.IO.Game
 import System.Random
 import LevelImporter (levelBuilder)
 import Data.Data (ConstrRep(FloatConstr))
+import Data.Maybe ( fromMaybe )
+import GHC.Clock (getMonotonicTimeNSec)
 
 --movement modifiers
 karioSpeed :: Float
@@ -27,13 +29,13 @@ karioMaxFallSpeed = 250
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs (GameMenu menuState s l)   = do 
+step secs (GameMenu menuState s l)   = do
     menu <- stepMenu secs menuState
-    return (GameMenu menu s l)  
-step secs (GameLevel levelState s l) = do 
+    return (GameMenu menu s l)
+step secs (GameLevel levelState s l) = do
     level <- stepLevel secs levelState
     return (GameLevel level s l)
-                                   
+
 
 -- | Handle one iteration of the menu
 stepMenu :: Float -> MenuState -> IO MenuState
@@ -57,7 +59,7 @@ moveKario secs kario@Kario{hitbox = hitbox@Hitbox{pos = (px, py)}, dirVelocity =
 
 accelerateKario :: Float -> Kario -> Kario
 accelerateKario secs kario@Kario{dirAccel = (accX, accY), dirVelocity = (velX, velY)} = kario{dirVelocity = (velX + secs * accX, velY + secs *accY)}
-                                                                                    
+
 applyFrictionToKario :: Float -> Kario -> Kario
 applyFrictionToKario secs kario@Kario{dirVelocity = (velX, velY), airborne, desiredHorizontalVelocity} = kario{dirVelocity = (velX + (desiredHorizontalVelocity - velX) * (secs * friction airborne), velY)}
   where
@@ -76,9 +78,8 @@ input :: Event -> GameState -> IO GameState
 input e gstate = return (inputKey e gstate)
 
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameMenu _ sprites l) = GameLevel (levelBuilder (head l)) sprites l                       --switching to level
-inputKey (EventKey (SpecialKey KeyDelete) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (removeLast s)) sprites l  --removing characters
-inputKey (EventKey (Char c) Down _ _) (GameMenu (MenuState s) sprites l) = GameMenu (MenuState (s ++ [c])) sprites l                    --typing characters
+inputKey e menu@GameMenu {} = menuStateInput e menu         --switching to level
+inputKey _ (GameMenu menu@MenuState {} sprites l) = GameMenu menu sprites l                                                          --typing characters
 inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {kario}) sprites l) = GameLevel levelState {              --handling level input
     kario = karioInput c ks kario                                                                                                    --handling kario related input
     } sprites l
@@ -90,13 +91,32 @@ karioInput 'd' Up kario                                                       = 
 karioInput 'a' _ kario                                                        = kario {desiredHorizontalVelocity = -karioSpeed}
 karioInput 'd' _ kario                                                        = kario {desiredHorizontalVelocity = karioSpeed}
 karioInput 'w' _ kario@Kario{dirVelocity = (velX, velY), airborne = Grounded} = kario {dirVelocity = (velX, velY + karioJumpStrength), airborne = Rising}
-karioInput  _  _ kario                                                        = kario 
+karioInput  _  _ kario                                                        = kario
 
 removeLast :: String -> String
 removeLast [] = []
 removeLast [_] = []
 removeLast (x:xs) = x : removeLast xs
 
+menuStateInput :: Event -> GameState -> GameState
+menuStateInput (EventKey (SpecialKey KeyRight) Down _ _)  = menuRightPress
+menuStateInput (EventKey (SpecialKey KeyLeft) Down _ _)  = menuLeftPress
+menuStateInput (EventKey (SpecialKey KeyEnter) Down _ _)  = menuEnterPress
+menuStateInput e = id
+
+menuRightPress :: GameState -> GameState
+menuRightPress g@(GameMenu MenuState {selectedLevel = Just i} _ (LoadedLevels l)) | i >= length l - 1 = g
+menuRightPress g@(GameMenu m@MenuState {selectedLevel = Just i} p (LoadedLevels l))  = GameMenu m{selectedLevel = Just (i + 1), selector = Just (Selector (Hitbox (buttonPosition (i + 1)) 0 0))} p (LoadedLevels l)
+menuRightPress g = g
+
+menuLeftPress :: GameState -> GameState
+menuLeftPress g@(GameMenu MenuState {selectedLevel = Just i} _ (LoadedLevels l)) | i <= 0 = g
+menuLeftPress g@(GameMenu m@MenuState {selectedLevel = Just i} p (LoadedLevels l))  = GameMenu m{selectedLevel = Just (i - 1), selector = Just (Selector (Hitbox (buttonPosition (i - 1)) 0 0))} p (LoadedLevels l)
+menuLeftPress g = g
+
+menuEnterPress :: GameState -> GameState
+menuEnterPress (GameMenu MenuState {selectedLevel = Just i} p (LoadedLevels l)) = GameLevel (levelBuilder (l !! i)) p (LoadedLevels l)
+menuEnterPress g = g
 --------------------------------------------------------------------------------------------
 -- | helper functions
 sign :: (Ord a, Num a) => a -> a

@@ -26,12 +26,27 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 brokenQuestionMark <- loadBMP "assets\\BrokenQuestionMarkBlock.bmp"
                 coin <- loadBMP "assets\\Coin.bmp"
                 coinBling <- loadBMP "assets\\CoinBling.bmp"
-                return (Sprites kario ground brick questionMark brokenQuestionMark [coin, coinBling])
+                menu <- loadBMP "assets\\StartScreen.bmp"
+                levelBox <- loadBMP "assets\\LevelBox.bmp"
+                selectionRing <- loadBMP "assets\\SelectionRing.bmp"
+                
+                return Sprites {
+                    karioImage = kario,
+                    groundImage = ground,
+                    brickImage = brick,
+                    questionMarkImage = questionMark,
+                    brokenQuestionMarkImage = brokenQuestionMark,
+                    coinPictures =  [coin, coinBling],
+                    menuImage = menu,
+                    levelBoxImage = levelBox,
+                    selectionRingImage = selectionRing
+                    }
 
 loadLevels :: IO [String]
 loadLevels = do
     fileList <- listDirectory "Levels"
-    mapM readFile (map ((++) "Levels\\") fileList)
+    list <- mapM readFile (map ((++) "Levels\\") fileList)
+    return (reverse list)
 
 
 
