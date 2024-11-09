@@ -4,15 +4,16 @@
 module Controller where
 
 import Model
-
+import KarioLogic
 import Graphics.Gloss
+import EnemyLogic
 import Graphics.Gloss.Interface.IO.Game
-import System.Random
 import LevelImporter (levelBuilder)
 import Data.Data (ConstrRep(FloatConstr))
 import Data.Maybe ( fromMaybe )
 import GHC.Clock (getMonotonicTimeNSec)
-
+import Data.Maybe ( mapMaybe )
+import Data.List (delete)
 --movement modifiers
 karioSpeed :: Float
 karioSpeed = 50
@@ -22,54 +23,25 @@ karioGroundFriction :: Float
 karioGroundFriction = 20
 karioAirFriction :: Float
 karioAirFriction = 2
-karioGravity :: Float
-karioGravity = 500
 karioMaxFallSpeed :: Float
 karioMaxFallSpeed = 250
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs (GameMenu menuState s l)   = do
-    menu <- stepMenu secs menuState
-    return (GameMenu menu s l)
-step secs (GameLevel levelState s l) = do
-    level <- stepLevel secs levelState
-    return (GameLevel level s l)
-
+step secs (GameMenu menuState s l)   = return (GameMenu (stepMenu secs menuState) s l)
+step secs (GameLevel levelState s l) = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l) --first handles the logged inputs and then handles all the other level logic
 
 -- | Handle one iteration of the menu
-stepMenu :: Float -> MenuState -> IO MenuState
-stepMenu secs menuState = return menuState
-
+stepMenu :: Float -> MenuState -> MenuState
+stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
-stepLevel :: Float -> LevelState -> IO LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime}) = return levelState {
-    kario = stepKario secs kario ,                                   --manipulate kario
-    elapsedGameTime = elapsedGameTime + secs
+stepLevel :: Float -> LevelState -> LevelState
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies}) = levelState {
+    kario = stepKario secs platforms kario,  --manipulate kario
+    elapsedGameTime = elapsedGameTime + secs,
+    enemies = map (stepEnemy secs platforms kario) enemies
     }
-
--- | kario step logic
-------------------------------------------------------------------------------------------
-stepKario :: Float -> Kario -> Kario
-stepKario secs = moveKario secs . applyFrictionToKario secs . accelerateKario secs . applyGravityToKario secs
-
-moveKario :: Float -> Kario -> Kario
-moveKario secs kario@Kario{hitbox = hitbox@Hitbox{pos = (px, py)}, dirVelocity = (vx, vy)} = kario{hitbox = hitbox{pos = (px + secs * vx, py + secs * vy)}}
-
-accelerateKario :: Float -> Kario -> Kario
-accelerateKario secs kario@Kario{dirAccel = (accX, accY), dirVelocity = (velX, velY)} = kario{dirVelocity = (velX + secs * accX, velY + secs *accY)}
-
-applyFrictionToKario :: Float -> Kario -> Kario
-applyFrictionToKario secs kario@Kario{dirVelocity = (velX, velY), airborne, desiredHorizontalVelocity} = kario{dirVelocity = (velX + (desiredHorizontalVelocity - velX) * (secs * friction airborne), velY)}
-  where
-    friction Grounded = karioGroundFriction
-    friction _        = karioAirFriction
-
-applyGravityToKario :: Float -> Kario -> Kario
-applyGravityToKario _ kario@Kario{airborne = Grounded}                               = kario                                                          --when grounded no gravity acceleration applied.
-applyGravityToKario secs kario@Kario{dirVelocity = (velX, velY)} = kario{dirVelocity = (velX, max (velY - secs * karioGravity) (-karioMaxFallSpeed))} --when airborne gravity is appliead.
-
 
 ------------------------------------------------------------------------------------------
 -- | Handle user input
@@ -77,21 +49,23 @@ applyGravityToKario secs kario@Kario{dirVelocity = (velX, velY)} = kario{dirVelo
 input :: Event -> GameState -> IO GameState
 input e gstate = return (inputKey e gstate)
 
+--handle special inputs and log normal inputs
 inputKey :: Event -> GameState -> GameState
-inputKey e menu@GameMenu {} = menuStateInput e menu         --switching to level
-inputKey _ (GameMenu menu@MenuState {} sprites l) = GameMenu menu sprites l                                                          --typing characters
-inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {kario}) sprites l) = GameLevel levelState {              --handling level input
-    kario = karioInput c ks kario                                                                                                    --handling kario related input
-    } sprites l
-inputKey _ gstate = gstate                                                                                                           --edge cases without handling
+inputKey e menu@GameMenu {} = menuStateInput e menu                                                                                  --menu input logic                                                    
+inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {inputState}) sprites l) = GameLevel (levelState {
+    inputState = logInput c ks inputState                                                                                --logging level input
+    }) sprites l
+inputKey _ gstate = gstate        
 
-karioInput :: Char -> KeyState -> Kario -> Kario
-karioInput 'a' Up kario                                                       = kario {desiredHorizontalVelocity = 0}
-karioInput 'd' Up kario                                                       = kario {desiredHorizontalVelocity = 0}
-karioInput 'a' _ kario                                                        = kario {desiredHorizontalVelocity = -karioSpeed}
-karioInput 'd' _ kario                                                        = kario {desiredHorizontalVelocity = karioSpeed}
-karioInput 'w' _ kario@Kario{dirVelocity = (velX, velY), airborne = Grounded} = kario {dirVelocity = (velX, velY + karioJumpStrength), airborne = Rising}
-karioInput  _  _ kario                                                        = kario
+logInput :: Char -> KeyState -> Inputs -> Inputs
+logInput c Down = (c:)
+logInput c Up   = delete c
+
+--handle the logged inputs
+handleLoggedInputs :: LevelState -> LevelState
+handleLoggedInputs levelState@LevelState{inputState, kario} = levelState{
+    kario = karioInput inputState kario
+}
 
 removeLast :: String -> String
 removeLast [] = []
@@ -118,7 +92,4 @@ menuEnterPress :: GameState -> GameState
 menuEnterPress (GameMenu MenuState {selectedLevel = Just i} p (LoadedLevels l)) = GameLevel (levelBuilder (l !! i)) p (LoadedLevels l)
 menuEnterPress g = g
 --------------------------------------------------------------------------------------------
--- | helper functions
-sign :: (Ord a, Num a) => a -> a
-sign x | x < 0     = -1
-       | otherwise = 1
+

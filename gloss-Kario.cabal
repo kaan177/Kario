@@ -20,4 +20,10 @@ executable gloss-Kario
                      , View
                      , LevelImporter
                      , MenuDrawer
+                     , Collision
+                     , KarioLogic
+                     , Positioning
+                     , Movable
+                     , EnemyLogic
+                     , Accelerable
   default-language:    Haskell2010

@@ -2,11 +2,13 @@
 -- | This module contains the data types
 --   which represent the state of the game
 module Model where
-
 import Graphics.Gloss
 import GHC.Float (int2Float)
 import Data.Sequence
 import Data.Foldable
+
+----------------------------------------------------------------
+-- | Model
 
 data Sprites = Sprites{
     karioImage :: Picture,
@@ -17,18 +19,23 @@ data Sprites = Sprites{
     coinPictures :: [Picture],
     menuImage :: Picture,
     levelBoxImage :: Picture,
-    selectionRingImage :: Picture
+    selectionRingImage :: Picture,
+    koombaImage :: Picture
 }
 
-data LoadedLevels = LoadedLevels [String]
+type LevelContents = String
 
-data GameState = GameLevel LevelState Sprites LoadedLevels | GameMenu MenuState Sprites LoadedLevels
+data GameState = GameLevel LevelState Sprites [LevelContents] | GameMenu MenuState Sprites [LevelContents]
+
+type Inputs = [Char] --all keys that are currently down.
 
 data LevelState = LevelState {
     kario :: Kario,
     platforms :: [Platform],
     coins :: [Coin],
-    elapsedGameTime :: Float
+    elapsedGameTime :: Float,
+    inputState :: Inputs,
+    enemies :: [Enemy]
     }
 
 data MenuState = MenuState {
@@ -47,12 +54,17 @@ type DirectionalAcceleration = Vector
 data ShouldExist = Exist | RemoveIn Int
 
 data Kario = Kario {
-    hitbox :: Hitbox
+    karHitbox :: Hitbox
     ,desiredHorizontalVelocity :: Float
-    ,dirVelocity :: DirectionalVelocity
-    ,dirAccel :: DirectionalAcceleration
+    ,karVel :: DirectionalVelocity
+    ,karAccel :: DirectionalAcceleration
     ,airborne :: Airborne
 }
+
+data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
+           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }     
+           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
+
 data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUpType | EmptyItemBox Hitbox
 
 data PowerUpType = Mushroom | Star
@@ -65,7 +77,7 @@ data Hitbox = Hitbox {
     height :: Height
     }  --origin in centre
 
-data Airborne = Grounded | Falling | Rising
+data Airborne = Grounded | Falling | Rising deriving Eq
 
 data CoinAnimation = Bling | Collecting Float
 
@@ -92,10 +104,12 @@ initialMenuState l =
 
 initialLevelState :: LevelState
 initialLevelState = LevelState {
-  kario = Kario (Hitbox (0,0) 20 20) 0 (10, 0) (0,0) Grounded,
-  platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
+  kario = Kario (Hitbox (-40,50) 30 45) 0 (0, 0) (0,0) Falling,
+  platforms = [Ground (Hitbox (0,(-1) * gridSize) 30 30), Ground (Hitbox ((-1) * gridSize,(-1) * gridSize) 30 30), Ground (Hitbox ((-2) * gridSize,(-1) * gridSize) 30 30), Brick (Hitbox (0, 4 * gridSize) 30 30), ItemBox (Hitbox (1 * gridSize, 4 * gridSize) 30 30) Mushroom, EmptyItemBox (Hitbox (2 * gridSize, 4 * gridSize) 30 30)] ,
   coins = [Coin (Hitbox (0 * gridSize, 0 * gridSize) 30 30) Bling Exist , Coin (Hitbox (6 * gridSize, 4 * gridSize) 30 30) Bling Exist , Coin (Hitbox (7 * gridSize, 4 * gridSize) 30 30) Bling Exist],
-  elapsedGameTime = 0
+  elapsedGameTime = 0,
+  inputState = [],
+  enemies = []
   }
 
 screenSize :: (Int,Int)
