@@ -18,4 +18,5 @@ executable gloss-Kario
                      , Model
                      , View
                      , LevelImporter
+                     , Collision
   default-language:    Haskell2010

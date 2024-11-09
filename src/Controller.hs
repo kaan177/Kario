@@ -126,11 +126,6 @@ removeLast [_] = []
 removeLast (x:xs) = x : removeLast xs
 
 --------------------------------------------------------------------------------------------
--- | helper functions
-sign :: (Ord a, Num a) => a -> a
-sign x | x < 0     = -1
-       | otherwise = 1
-
 getOverlaps :: (Collidable a, Collidable b) => a -> [b] -> [Hitbox]
 getOverlaps subject = mapMaybe (getOverlap (getBox subject) . getBox)
 
