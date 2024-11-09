@@ -6,6 +6,7 @@ import Collision
 import Movable
 import Accelerable
 import Positioning
+import GHC.Float
 
 --movement modifiers
 karioSpeed :: Float
@@ -20,7 +21,16 @@ karioAirFriction = 3
 --applies all the functions to kario that make up a step
 stepKario :: Float -> [Platform] -> [Enemy] -> Kario -> Kario
 stepKario secs platforms enemies kario@Kario{karHitbox = Hitbox{pos = prevPos}} =
-  (handleExistence secs . moveAndCollide secs platforms . applyFriction secs . accelerateKario secs . applyGravity secs . handleEnemyCollisions enemies) kario 
+  (handleExistence secs . handleOutOfBounds . moveAndCollide secs platforms . applyFriction secs . accelerateKario secs . applyGravity secs . handleEnemyCollisions enemies) kario 
+
+handleOutOfBounds :: Kario -> Kario
+handleOutOfBounds kario | posY < bottomBound = kario{karioExist = RemoveIn 0}
+                        | posX < leftBound   = updatePos kario (leftBound, posY) 
+                        | otherwise          = kario
+  where  
+    (posX, posY) = getPos kario
+    leftBound    = -int2Float(fst screenSize `div` 2)
+    bottomBound  = -int2Float(snd screenSize `div` 2)
 
 handleExistence :: Float -> Kario -> Kario
 handleExistence _ k@Kario{karioExist = Exist}         = k

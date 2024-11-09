@@ -63,7 +63,7 @@ data ShouldExist = Exist
                  | RemoveIn Float
 
 data Kario = Kario {
-    karHitbox :: Hitbox
+    karHitbox   :: Hitbox
     ,desiredHorizontalVelocity :: Float
     ,karVel     :: DirectionalVelocity
     ,karAccel   :: DirectionalAcceleration
