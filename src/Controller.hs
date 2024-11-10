@@ -23,6 +23,7 @@ import Animation (updateAnimation)
 import ItemBoxLogic (stepItemBox)
 import Data.Maybe
 import Data.Char (toLower)
+import System.Random (randomRIO)
 
 --camera modifiers
 cameraSpeed :: Float
@@ -37,10 +38,11 @@ step secs (GameLevel levelState@LevelState{kario, flagPole, coinLevelScore} s l 
     return (GameMenu (initialMenuState l coinLevelScore) s l )
 step secs (GameLevel levelState@LevelState{kario = Kario{karioExist = RemoveIn 0}, coinLevelScore} s l)
     = return $ GameMenu (initialMenuState l coinLevelScore) s l
-step secs (GameLevel levelState s l )
-    = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l ) --first handles the logged inputs and then handles all the other level logic
+step secs (GameLevel levelState s l ) = do
+    rand <- randomRIO (0.0, 1.0)
+    return (GameLevel (stepLevel secs rand (handleLoggedInputs levelState)) s l ) --first handles the logged inputs and then handles all the other level logic
 
--- | Handle one iteration of the menu
+-- | Handle one iteration of the menu   
 stepMenu :: Float -> MenuState -> MenuState
 stepMenu secs menuState = menuState
 
