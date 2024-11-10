@@ -31,7 +31,7 @@ recursiveLevelBuilder (('F', x, y) : as) levelState@(LevelState {flagPole})     
 recursiveLevelBuilder (('m', x, y) : as) levelState@(LevelState {powerups})      = recursiveLevelBuilder as levelState {powerups = Mushroom (Hitbox (x * gridSize , y * gridSize) 20 20) (0,0) Exist : powerups  }
 recursiveLevelBuilder (('s', x, y) : as) levelState@(LevelState {powerups})      = recursiveLevelBuilder as levelState {powerups = Star (Hitbox (x * gridSize , y * gridSize ) 20 20) (0,0) Exist : powerups }
 recursiveLevelBuilder (('O', x, y) : as) levelState                              = recursiveLevelBuilder as levelState
-recursiveLevelBuilder ((_, x, y) : as) levelState = error "Character in level loading is invalid."
+recursiveLevelBuilder ((c, x, y) : as) levelState = error ("Character: " ++ [c] ++ " in level loading is invalid.")
 {-
 K = Kario
 k = KoopaTroopa
@@ -42,7 +42,6 @@ B = brick
 M = mushroom itembox
 S = star itembox
 r = random itemBox
-R = random itembox (nog niet geimplementeerd)
 O = air (grote o niet nul)
 F = FlagPole
 m = mushroom
