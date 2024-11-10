@@ -104,7 +104,7 @@ data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | I
 
 data Coin = Coin Hitbox CoinAnimation ShouldExist
 
-data CoinAnimation = Bling | Collecting Float
+data CoinAnimation = Bling FrameNr Float  
 
 ---Coin related------
 ---------------------
