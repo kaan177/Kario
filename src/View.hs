@@ -35,7 +35,7 @@ data Square = Sqr Point Point Point Point
 
 ------------------------------In game stuf----------------------------------------------------------------------------------
 drawCoin :: [Picture] -> Coin -> Picture
-drawCoin frames (Coin _ (Bling nr _) _) = frames !! (nr `div` 5)
+drawCoin frames (Coin Hitbox{pos} (Bling nr _) _) = uncurry Translate pos (frames !! (nr `div` 5))
 
 drawKario :: Kario -> Float -> Picture -> Picture
 drawKario kario secs = let (x,y) = getPos kario in translate x y . starCheck kario secs . scale sFac (bigFactor kario)

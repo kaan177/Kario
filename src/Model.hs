@@ -105,7 +105,7 @@ data KarioAnimation = Idle
 data Platform = Ground Hitbox 
               | Brick Hitbox 
               | BreakBrick Hitbox ShouldExist 
-              | ItemBox Hitbox PowerUp 
+              | ItemBox Hitbox (Maybe PowerUp) 
               | EmptyItemBox Hitbox
 
 ---------------------

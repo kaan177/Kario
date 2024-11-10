@@ -1,6 +1,6 @@
 {-# language NamedFieldPuns #-}
 
-module LevelImporter (levelBuilder) where
+module LevelImporter (levelBuilder, gridSize) where
 
 import Model
 import GHC.Float (int2Float)
@@ -23,14 +23,15 @@ recursiveLevelBuilder (('k', x, y) : as) levelState@(LevelState {enemies})      
 recursiveLevelBuilder (('C', x, y) : as) levelState@(LevelState {coins})         = recursiveLevelBuilder as levelState {coins = Coin (Hitbox (x * gridSize, y * gridSize) 30 30) (Bling 0 frameDuration) Exist : coins}
 recursiveLevelBuilder (('G', x, y) : as) levelState@(LevelState {platforms})     = recursiveLevelBuilder as levelState {platforms = Ground (Hitbox (x * gridSize, y * gridSize) 30 30) : platforms}
 recursiveLevelBuilder (('B', x, y) : as) levelState@(LevelState {platforms})     = recursiveLevelBuilder as levelState {platforms = Brick (Hitbox (x * gridSize, y * gridSize) 30 30) : platforms}
-recursiveLevelBuilder (('M', x, y) : as) levelState@(LevelState {platforms})     = recursiveLevelBuilder as levelState {platforms = ItemBox (Hitbox (x * gridSize, y * gridSize) 30 30) (Mushroom (Hitbox (x * gridSize , y * gridSize) 20 20) (0,0) Exist) : platforms}
-recursiveLevelBuilder (('S', x, y) : as) levelState@(LevelState {platforms})     = recursiveLevelBuilder as levelState {platforms = ItemBox (Hitbox (x * gridSize, y * gridSize) 30 30) (Star (Hitbox (x * gridSize , y * gridSize ) 20 20) (0,0) Exist) : platforms}
+recursiveLevelBuilder (('M', x, y) : as) levelState@(LevelState {platforms})     = recursiveLevelBuilder as levelState {platforms = ItemBox (Hitbox (x * gridSize, y * gridSize) 30 30) (Just(Mushroom (Hitbox (x * gridSize , y * gridSize) 20 20) (0,0) Exist)) : platforms}
+recursiveLevelBuilder (('S', x, y) : as) levelState@(LevelState {platforms})     = recursiveLevelBuilder as levelState {platforms = ItemBox (Hitbox (x * gridSize, y * gridSize) 30 30) (Just(Star (Hitbox (x * gridSize , y * gridSize ) 20 20) (0,0) Exist)) : platforms}
+recursiveLevelBuilder (('r', x, y) : as) levelState@(LevelState {platforms})     = recursiveLevelBuilder as levelState {platforms = ItemBox (Hitbox (x * gridSize, y * gridSize) 30 30) Nothing : platforms}
 recursiveLevelBuilder (('g', x, y) : as) levelState@(LevelState {enemies})       = recursiveLevelBuilder as levelState {enemies = Koomba (Hitbox (x * gridSize + (30 - gridSize), y * gridSize + (30 - gridSize)) 30 30) (0,0) Exist (EnemyMoving 0 frameDuration) : enemies }
 recursiveLevelBuilder (('F', x, y) : as) levelState@(LevelState {flagPole})      = recursiveLevelBuilder as levelState {flagPole = FlagPole (Hitbox (x * gridSize , y * gridSize + 135 ) 10 300)  }
 recursiveLevelBuilder (('m', x, y) : as) levelState@(LevelState {powerups})      = recursiveLevelBuilder as levelState {powerups = Mushroom (Hitbox (x * gridSize , y * gridSize) 20 20) (0,0) Exist : powerups  }
 recursiveLevelBuilder (('s', x, y) : as) levelState@(LevelState {powerups})      = recursiveLevelBuilder as levelState {powerups = Star (Hitbox (x * gridSize , y * gridSize ) 20 20) (0,0) Exist : powerups }
 recursiveLevelBuilder (('O', x, y) : as) levelState                              = recursiveLevelBuilder as levelState
-recursiveLevelBuilder ((_, x, y) : as) levelState = error "Character in level loading is invalid."
+recursiveLevelBuilder ((c, x, y) : as) levelState = error ("Character: " ++ [c] ++ " in level loading is invalid.")
 {-
 K = Kario
 k = KoopaTroopa
@@ -40,7 +41,7 @@ g = Koomba
 B = brick
 M = mushroom itembox
 S = star itembox
-R = random itembox (nog niet geimplementeerd)
+r = random itemBox
 O = air (grote o niet nul)
 F = FlagPole
 m = mushroom
