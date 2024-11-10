@@ -97,7 +97,7 @@ data EnemyAnimation = EnemyMoving FrameNr Float
 data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
 
 data PowerUpType = Big | Invincible | Small
-data PowerUp = Mushroom Hitbox DirectionalVelocity | Star Hitbox DirectionalVelocity
+data PowerUp = Mushroom {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
 
 data Coin = Coin Hitbox CoinAnimation ShouldExist
 

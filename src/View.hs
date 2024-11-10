@@ -16,7 +16,7 @@ view = return . viewPure
 
 viewPure :: GameState -> Picture
 viewPure (GameMenu menu@MenuState {} s _ ) = drawMenu menu s 
-viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore, camera} sprites@Sprites{coinPictures} _ ) = 
+viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore, camera, powerups} sprites@Sprites{coinPictures} _ ) = 
     Pictures [
 
     translate (-camX) (-camY) $ Pictures [
@@ -25,7 +25,7 @@ viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemie
     animateCoins coins coinPictures elapsedGameTime,
     Pictures $ map (drawEnemy sprites) enemies,     --draw all enemies
     drawFlagPole sprites flagPole ],
-    Pictures (map (drawPowerUps sprites) powerups)
+    Pictures (map (drawPowerUps sprites) powerups),
  
     drawCoinCounter coinLevelScore ]                --draw UIelement separately so it does not move along with camera
     where
@@ -88,5 +88,5 @@ drawFlagPole :: Sprites -> FlagPole -> Picture
 drawFlagPole s f@FlagPole{} = let (x,y) = getPos f in Translate x y (flagPoleImage s)
 
 drawPowerUps :: Sprites -> PowerUp -> Picture
-drawPowerUps s p@(Mushroom _) = let (x,y) = getPos p in Translate x y (mushroomImage s)
-drawPowerUps s p@(Star _) = let (x,y) = getPos p in Translate x y (starImage s)
+drawPowerUps s p@Mushroom{} = let (x,y) = getPos p in Translate x y (mushroomImage s)
+drawPowerUps s p@Star{} = let (x,y) = getPos p in Translate x y (starImage s)

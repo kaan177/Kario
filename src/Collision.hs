@@ -42,10 +42,10 @@ instance Collidable Coin where
     updateBox newBox (Coin _ a b)    = Coin newBox a b
 
 instance Collidable PowerUp where
-    getBox (Mushroom hitbox _) = hitbox
-    getBox (Star hitbox _) = hitbox
-    updateBox newBox (Mushroom _ vel) = Mushroom newBox vel
-    updateBox newBox (Star _ vel) = Star newBox vel
+    getBox Mushroom{hitbox}  = hitbox
+    getBox Star{hitbox} = hitbox
+    updateBox newBox m@Mushroom {} = m{hitbox = newBox}
+    updateBox newBox s@Star {} = s{hitbox = newBox}
 --------------------------------------------------------------------------------------------------------------
 --{COLLISION FUNCTIONS}
 

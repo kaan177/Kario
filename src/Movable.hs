@@ -28,8 +28,8 @@ instance Movable Enemy where
   getVel = enemyVel
 
 instance Movable PowerUp where
-  getVel (Mushroom _ vel) = vel
-  getVel (Star _ vel) = vel
+  getVel Mushroom{powerUpvel} = powerUpvel
+  getVel  Star{powerUpvel} =  powerUpvel
   
 instance Movable Camera where
   getVel (Camera _ vel) = vel

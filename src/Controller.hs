@@ -16,6 +16,8 @@ import Collision (isOverlapping, isColliding, getOverlaps, getBox)
 
 import Data.List (delete)
 import GHC.Float (int2Float)
+import PowerUpLogic (stepPowerUp)
+import Existable (Existable(handleExistence))
 
 --camera modifiers
 cameraSpeed :: Float
@@ -39,14 +41,16 @@ stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
 stepLevel :: Float -> LevelState -> LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera}) =    
-    let enemies' = handleExistence secs enemies in levelState {
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) =    
+    let enemies' = handleExistence secs enemies
+        powerups' = handleExistence secs powerups in levelState {
     kario = stepKario secs platforms enemies' kario,
     elapsedGameTime = elapsedGameTime + secs,
     enemies = map (stepEnemy secs platforms kario) enemies',
     coins = filter (not . isColliding kario) coins,
     coinLevelScore = coinLevelScore + length (filter (isColliding kario) coins),
-    camera = updateCamera secs kario camera
+    camera = updateCamera secs kario camera,
+    powerups = map (stepPowerUp secs platforms kario) powerups'
     }
 
 updateCamera :: Float -> Kario -> Camera -> Camera
@@ -61,13 +65,6 @@ handleCamBounds cam | posX - halfCamWidth < leftBound = updatePos cam (leftBound
     where leftBound    = -int2Float(fst screenSize `div` 2)
           halfCamWidth  = width (getBox cam) / 2
           (posX, posY) = getPos cam
-
-handleExistence :: Float -> [Enemy] -> [Enemy]
-handleExistence secs = foldr f []
-  where f enemy enemies = case enemyExist enemy of
-                          Exist      -> enemy : enemies
-                          RemoveIn 0 -> enemies
-                          RemoveIn x -> enemy{enemyExist = RemoveIn $ max 0 (x - secs)} : enemies
 
 ------------------------------------------------------------------------------------------
 -- | Handle user input

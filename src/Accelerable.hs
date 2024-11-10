@@ -1,3 +1,4 @@
+{-# LANGUAGE InstanceSigs #-}
 module Accelerable where
 
 import Movable
@@ -13,14 +14,15 @@ instance Accelerable Camera where
     updateVel newVel (Camera box _) = Camera box newVel
 
 instance Accelerable Kario where
+    updateVel :: DirectionalVelocity -> Kario -> Kario
     updateVel vel kar = kar{karVel = vel}
 
 instance Accelerable Enemy where
     updateVel vel enemy = enemy{enemyVel = vel} 
 
 instance Accelerable PowerUp where 
-    updateVel vel (Mushroom h _) = Mushroom h vel
-    updateVel vel (Star h _) = Star h vel
+    updateVel vel m@Mushroom{} = m{powerUpvel = vel}
+    updateVel vel s@Star{}= s{powerUpvel = vel}
 
 
 
