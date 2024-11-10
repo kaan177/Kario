@@ -12,7 +12,7 @@ stepItemBox k rand i@(ItemBox _ _) = checkKarioCollideItemBox k rand i
 stepItemBox _ rand p = (p, Nothing)
 
 checkKarioCollideItemBox :: Kario -> Float -> Platform -> (Platform, Maybe PowerUp)
-checkKarioCollideItemBox kario rand p = case getOverlap (getBox kario) ((\h@Hitbox{height} -> h{height = height + 2}) (getBox p)) of
+checkKarioCollideItemBox kario rand p = case getOverlap (getBox kario) ((\h@Hitbox{height, pos = (x,y)} -> h{height = height + 2, pos = (x,y-2)}) (getBox p)) of
     Nothing      -> (p, Nothing)
     Just overlap -> handleKarioCollideItemBox kario overlap rand p
 
