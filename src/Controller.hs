@@ -20,6 +20,7 @@ import GHC.Float (int2Float)
 import PowerUpLogic (stepPowerUp)
 import Existable (Existable(handleExistence))
 import Animation (updateAnimation)
+import Data.Char (toLower)
 
 --camera modifiers
 cameraSpeed :: Float
@@ -43,7 +44,8 @@ stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
 stepLevel :: Float -> LevelState -> LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) =    
+stepLevel _ levelState@LevelState{paused = Paused} = levelState                                                                --don't do anything when paused
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) = --otherwise do
     let enemies' = handleExistence secs enemies
         powerups' = handleExistence secs powerups in levelState {
     kario = stepKario powerups secs platforms enemies' kario,
@@ -76,11 +78,16 @@ input e gstate = return (inputKey e gstate)
 
 --handle special inputs and log normal inputs
 inputKey :: Event -> GameState -> GameState
-inputKey e menu@GameMenu {} = menuStateInput e menu                                                                                  --menu input logic                                                    
+inputKey e menu@GameMenu {} = menuStateInput e menu                                                                                              --menu input logic 
+inputKey (EventKey (SpecialKey KeyEsc) Up _ _) (GameLevel l@LevelState{paused} s lc)            = GameLevel l{paused = switchPaused paused} s lc --Pause when pressing escape                                     = g                                            --Don't log input when paused
 inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {inputState}) sprites l ) = GameLevel (levelState {
-    inputState = logInput c ks inputState                                                                                --logging level input
+    inputState = logInput (toLower c) ks inputState                                                                                --logging level input
     }) sprites l
 inputKey _ gstate = gstate
+
+switchPaused :: Paused -> Paused
+switchPaused Paused  = Playing
+switchPaused Playing = Paused
 
 logInput :: Char -> KeyState -> Inputs -> Inputs
 logInput c Down = (c:)

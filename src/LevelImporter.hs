@@ -49,6 +49,7 @@ s = star
 
 emptyLevel :: CoinScore -> LevelState
 emptyLevel coinScore = LevelState{
+  paused          = Playing,
   kario           = Kario (Hitbox (0,0) 20 20) 0 Small Vulnerable (0,0) Grounded Exist Idle,
   platforms       = [],
   coins           = [],
