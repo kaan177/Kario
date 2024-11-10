@@ -5,7 +5,6 @@ module EnemyLogic(stepEnemy) where
 import Model
 import Accelerable ( Accelerable(updateVel, applyGravity) )
 import Collision
-import Positioning
 import Movable
 import Accelerable (Accelerable(applyGravity))
 import Data.IntMap (update)
@@ -13,7 +12,12 @@ import Animation
 
 --should add logic for when out of screen not move
 stepEnemy :: Float -> [Platform] -> Kario -> Enemy -> Enemy
-stepEnemy secs platforms kario enemy = let prevPos = getPos enemy in moveAndCollide secs platforms . applyGravity secs . handleVelocity . checkKarioCollison kario . updateAnimation secs $ enemy
+stepEnemy secs platforms kario enemy = let prevPos = getPos enemy in 
+      moveAndCollide secs platforms
+    . applyGravity secs 
+    . handleVelocity 
+    . checkKarioCollison kario 
+    . updateAnimation secs $ enemy
 
 checkKarioCollison :: Kario -> Enemy -> Enemy
 checkKarioCollison kario enemy = case getOverlap (getBox kario) (getBox enemy) of
@@ -33,7 +37,7 @@ handleKarioCollision Hitbox{width = overX, height = overY} kario enemy
 
 --by moving over the x-axis and y-axis seperately we avoid some bugs that arose from our collision implementation 
 moveAndCollide :: Float -> [Platform] -> Enemy -> Enemy
-moveAndCollide secs platforms enemy = handlePlatformCollisions (getPos enemy') platforms . moveY secs $ enemy'
+moveAndCollide secs platforms enemy = foldl collisionFailSafe (handlePlatformCollisions (getPos enemy') platforms . moveY secs $ enemy') platforms
     where
         enemy' = handlePlatformCollisions (getPos enemy) platforms . moveX secs $ enemy
 
@@ -42,8 +46,8 @@ handlePlatformCollisions prevPos platforms movedEnemy = foldr (handleCollision p
 
 handleCollision :: Position -> Overlap -> Enemy -> Enemy
 handleCollision (prevX,prevY) Hitbox{width = overlapX, height = overlapY} enemy
-    | overlapX < overlapY = updateVel (- vx, vy) $  updatePos enemy (prevX, newY) --when the horizontal overlap is smaller we treat the collision as a horizontal one
-    | otherwise           = updateVel (vx,0) $ updatePos enemy (newX, prevY)      --otherwise we treat it as a vertical collision where the enemy falls
+    | overlapX < (overlapY - overlapYBias) = updateVel (- vx, vy) $ updatePos enemy (prevX, newY) --when the horizontal overlap is smaller we treat the collision as a horizontal one
+    | otherwise                            = updateVel (vx,0) $ updatePos enemy (newX, prevY)      --otherwise we treat it as a vertical collision where the enemy falls
     where (newX,newY) = getPos enemy
           (vx,vy)     = getVel enemy
 

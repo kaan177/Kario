@@ -8,8 +8,8 @@ import Model
 import GHC.Float (int2Float)
 import UI
 import Data.Fixed
-import Positioning
 import Movable
+import Collision
 
 view :: GameState -> IO Picture
 view = return . viewPure

@@ -60,6 +60,7 @@ type Height = Float
 -- | LevelState
 
 data LevelState = LevelState {
+    paused          :: Paused,
     kario           :: Kario,
     platforms       :: [Platform],
     coins           :: [Coin],
@@ -72,6 +73,8 @@ data LevelState = LevelState {
     camera          :: Camera
     }
 
+data Paused = Paused
+            | Playing
 ---------------------
 ---Kario Related-----
 

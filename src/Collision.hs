@@ -4,6 +4,10 @@ module Collision where
 import Model
 import Data.Maybe(mapMaybe)
 
+-- | Constants to try to mitigate bug damage
+overlapYBias :: Float
+overlapYBias = 2
+
 -- | Collidable type class
 class Collidable a where
     getBox    :: a -> Hitbox
@@ -77,3 +81,23 @@ hitboxToPoints Hitbox{pos = (x, y), width = w, height = h} = [(x - (1/2 * w),y -
 
 isColliding :: (Collidable a, Collidable b) => a -> b -> Bool
 isColliding a b = isOverlapping (getBox a) (getBox b)
+
+--recursively move subject out of other collidable
+collisionFailSafe :: (Collidable a, Collidable b) => a -> b -> a
+collisionFailSafe subject other | isColliding subject other = collisionFailSafe (updatePos subject (posX, posY + 1)) other
+                                | otherwise                 = subject
+  where
+    (posX,posY) = getPos subject
+
+---------------------------------------------------------------------------------------------------------------
+--{Positioning}
+--tried to make a typeclass, but ended up not being necessary, so handy helper functions for positioning are in this file
+
+updateBoxPos :: Position -> Hitbox -> Hitbox
+updateBoxPos newPos box = box{pos = newPos}
+
+getPos :: (Collidable a) => a -> Position
+getPos = pos . getBox
+
+updatePos :: (Collidable a) => a -> Position -> a
+updatePos col newPos = updateBox (updateBoxPos newPos (getBox col)) col

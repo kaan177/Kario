@@ -7,22 +7,25 @@ import Model
 import KarioLogic
 import Graphics.Gloss
 import EnemyLogic
-import Positioning
 import Movable
 import Accelerable
 import Initialisation
 import UI
 import Graphics.Gloss.Interface.IO.Game
 import LevelImporter (levelBuilder)
-import Collision (isOverlapping, isColliding, getOverlaps, getBox)
+import Collision
 
 import Data.List (delete)
 import GHC.Float (int2Float)
 import PowerUpLogic (stepPowerUp)
 import Existable (Existable(handleExistence))
 import Animation (updateAnimation)
+<<<<<<< HEAD
 import ItemBoxLogic (stepItemBox)
 import Data.Maybe
+=======
+import Data.Char (toLower)
+>>>>>>> aa9a28a5dffec23d10b367ef4ea88fbcc77b9bb8
 
 --camera modifiers
 cameraSpeed :: Float
@@ -45,8 +48,14 @@ stepMenu :: Float -> MenuState -> MenuState
 stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
+<<<<<<< HEAD
 stepLevel :: Float -> Float -> LevelState -> LevelState
 stepLevel secs rand levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) =
+=======
+stepLevel :: Float -> LevelState -> LevelState
+stepLevel _ levelState@LevelState{paused = Paused} = levelState                                                                --don't do anything when paused
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) = --otherwise do
+>>>>>>> aa9a28a5dffec23d10b367ef4ea88fbcc77b9bb8
     let enemies' = handleExistence secs enemies
         powerups' = handleExistence secs powerups
         newPowerUps = map (snd . stepItemBox kario rand) platforms in levelState {
@@ -81,11 +90,16 @@ input e gstate = return (inputKey e gstate)
 
 --handle special inputs and log normal inputs
 inputKey :: Event -> GameState -> GameState
-inputKey e menu@GameMenu {} = menuStateInput e menu                                                                                  --menu input logic                                                    
+inputKey e menu@GameMenu {} = menuStateInput e menu                                                                                              --menu input logic 
+inputKey (EventKey (SpecialKey KeyEsc) Up _ _) (GameLevel l@LevelState{paused} s lc)            = GameLevel l{paused = switchPaused paused} s lc --Pause when pressing escape                                     = g                                            --Don't log input when paused
 inputKey (EventKey (Char c) ks _ _) (GameLevel levelState@(LevelState {inputState}) sprites l ) = GameLevel (levelState {
-    inputState = logInput c ks inputState                                                                                --logging level input
+    inputState = logInput (toLower c) ks inputState                                                                                --logging level input
     }) sprites l
 inputKey _ gstate = gstate
+
+switchPaused :: Paused -> Paused
+switchPaused Paused  = Playing
+switchPaused Playing = Paused
 
 logInput :: Char -> KeyState -> Inputs -> Inputs
 logInput c Down = (c:)

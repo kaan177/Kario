@@ -22,7 +22,6 @@ executable gloss-Kario
                      , UI
                      , Collision
                      , KarioLogic
-                     , Positioning
                      , Movable
                      , EnemyLogic
                      , Accelerable

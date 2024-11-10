@@ -3,7 +3,6 @@ module Movable where
 
 import Model
 import Collision
-import Positioning
 
 --Type class for movement
 
