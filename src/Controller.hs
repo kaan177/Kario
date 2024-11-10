@@ -21,6 +21,8 @@ import GHC.Float (int2Float)
 import PowerUpLogic (stepPowerUp)
 import Existable (Existable(handleExistence))
 import Animation (updateAnimation)
+import ItemBoxLogic (stepItemBox)
+import Data.Maybe
 
 --camera modifiers
 cameraSpeed :: Float
@@ -28,14 +30,14 @@ cameraSpeed = 2
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs (GameMenu menuState s l) 
+step secs (GameMenu menuState s l)
     = return (GameMenu (stepMenu secs menuState) s l )
 step secs (GameLevel levelState@LevelState{kario, flagPole, coinLevelScore} s l ) | isColliding kario flagPole = do
     _ <- writeFile "Coins\\Coins.txt" (show coinLevelScore)
     return (GameMenu (initialMenuState l coinLevelScore) s l )
-step secs (GameLevel levelState@LevelState{kario = Kario{karioExist = RemoveIn 0}, coinLevelScore} s l) 
+step secs (GameLevel levelState@LevelState{kario = Kario{karioExist = RemoveIn 0}, coinLevelScore} s l)
     = return $ GameMenu (initialMenuState l coinLevelScore) s l
-step secs (GameLevel levelState s l )                                                                  
+step secs (GameLevel levelState s l )
     = return (GameLevel (stepLevel secs (handleLoggedInputs levelState)) s l ) --first handles the logged inputs and then handles all the other level logic
 
 -- | Handle one iteration of the menu
@@ -43,17 +45,19 @@ stepMenu :: Float -> MenuState -> MenuState
 stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
-stepLevel :: Float -> LevelState -> LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) =    
+stepLevel :: Float -> Float -> LevelState -> LevelState
+stepLevel secs rand levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) =
     let enemies' = handleExistence secs enemies
-        powerups' = handleExistence secs powerups in levelState {
+        powerups' = handleExistence secs powerups
+        newPowerUps = map (snd . stepItemBox kario rand) platforms in levelState {
     kario = stepKario powerups secs platforms enemies' kario,
     elapsedGameTime = elapsedGameTime + secs,
     enemies = map (stepEnemy secs platforms kario) enemies',
     coins = map (updateAnimation secs) $ filter (not . isColliding kario) coins,
     coinLevelScore = coinLevelScore + length (filter (isColliding kario) coins),
     camera = updateCamera secs kario camera,
-    powerups = map (stepPowerUp secs platforms kario) powerups'
+    powerups = map (stepPowerUp secs platforms kario) powerups' ++ catMaybes newPowerUps,
+    platforms = map (fst . stepItemBox kario rand) platforms
     }
 
 updateCamera :: Float -> Kario -> Camera -> Camera
@@ -61,11 +65,11 @@ updateCamera secs kario camera = handleCamBounds . move secs . updateVel (camera
   where
     (kPosX, kPosY) = getPos kario
     (cPosX, cPosY) = getPos camera
-    
+
 handleCamBounds :: Camera -> Camera
-handleCamBounds cam | posX - halfCamWidth < leftBound = updatePos cam (leftBound + halfCamWidth, posY) 
+handleCamBounds cam | posX - halfCamWidth < leftBound = updatePos cam (leftBound + halfCamWidth, posY)
                     | otherwise                        = cam
-    where leftBound    = -int2Float(fst screenSize `div` 2)
+    where leftBound    = -int2Float (fst screenSize `div` 2)
           halfCamWidth  = width (getBox cam) / 2
           (posX, posY) = getPos cam
 

@@ -99,7 +99,7 @@ data KarioAnimation = Idle
 ---Kario Related-----
 ---------------------
 
-data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
+data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox (Maybe PowerUp) | EmptyItemBox Hitbox
 
 ---------------------
 ---Coin related------
