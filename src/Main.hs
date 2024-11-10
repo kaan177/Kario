@@ -4,6 +4,7 @@ import Controller
 import Model
 import View
 import ImageLoading
+import Initialisation
 
 import Graphics.Gloss.Interface.IO.Game
 import System.Directory (listDirectory)
@@ -20,7 +21,6 @@ main = do sprites <- loadImages
               view             -- View function
               input            -- Event function
               step             -- Step function
-
 
 
 loadLevels :: IO [String]

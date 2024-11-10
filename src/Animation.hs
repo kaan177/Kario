@@ -9,7 +9,26 @@ animationFPS = 10
 frameDuration :: Float
 frameDuration = 1 / animationFPS
 
---constants for kario animation
+------------------------------------------------------------------------------------------------------
+--Functions on animatables
+
+nextFrame ::(Animatable a) => Int -> a -> a
+nextFrame nrOfFrames obj | curFrame < (nrOfFrames - 1) = setFrame (curFrame + 1) obj --go to next frame
+                         | otherwise                   = setFrame 0 obj              --loop back around
+    where curFrame = getFrame obj
+
+updateTimeUntilNext :: (Animatable a) => Float -> a -> a
+updateTimeUntilNext secs obj = setTimeUntilNext (curTime - secs) obj
+    where curTime = getTimeUntilNext obj
+
+updateAnimation :: (Animatable a) => Float -> a -> a
+updateAnimation secs obj | curTime <= 0 = nextFrame nrOfFrames . setTimeUntilNext (frameDuration + curTime) $ obj
+                         | otherwise    = updateTimeUntilNext secs obj
+    where curTime = getTimeUntilNext obj
+          nrOfFrames = getNrOfFrames obj
+
+------------------------------------------------------------------------------------------------------
+--Animatable type class and instances
 
 class Animatable a where
     getFrame         :: a -> FrameNr
@@ -49,19 +68,11 @@ instance Animatable Enemy where
     getTimeUntilNext = (\(EnemyMoving _ t) -> t) . enemyAnim
     setTimeUntilNext t enemy = let nr = (\(EnemyMoving nr _) -> nr) . enemyAnim $ enemy in enemy{enemyAnim = EnemyMoving nr t}
 
-nextFrame ::(Animatable a) => Int -> a -> a
-nextFrame nrOfFrames obj | curFrame < (nrOfFrames - 1) = setFrame (curFrame + 1) obj --go to next frame
-                         | otherwise                   = setFrame 0 obj              --loop back around
-    where curFrame = getFrame obj
-
-updateTimeUntilNext :: (Animatable a) => Float -> a -> a
-updateTimeUntilNext secs obj = setTimeUntilNext (curTime - secs) obj
-    where curTime = getTimeUntilNext obj
-
-updateAnimation :: (Animatable a) => Float -> a -> a
-updateAnimation secs obj | curTime <= 0 = nextFrame nrOfFrames . setTimeUntilNext (frameDuration + curTime) $ obj
-                         | otherwise    = updateTimeUntilNext secs obj
-    where curTime = getTimeUntilNext obj
-          nrOfFrames = getNrOfFrames obj
+instance Animatable Coin where
+    getFrame (Coin _ (Bling nr _) _)                 = nr
+    setFrame nr (Coin box (Bling _ t) exist)         = Coin box (Bling nr t) exist
+    getNrOfFrames (Coin _ (Bling _ _) _)             = 10
+    getTimeUntilNext (Coin _ (Bling _ t ) _)         = t
+    setTimeUntilNext t (Coin box (Bling nr _) exist) = Coin box (Bling nr t) exist
 
 

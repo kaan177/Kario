@@ -1,15 +1,20 @@
 {-# language NamedFieldPuns #-}
 -- | This module contains the data types
 --   which represent the state of the game
+
 module Model where
 import Graphics.Gloss
-import GHC.Float (int2Float)
-import Data.Sequence
-import Data.Foldable
-import GHC.RTS.Flags (ProfFlags)
+
+---------------------------------------------------------------
+-- | General constants
+
+screenSize :: (Int,Int)
+screenSize = (600,600)
 
 ----------------------------------------------------------------
--- | Model
+-- | Top layer Model
+
+data GameState = GameLevel LevelState Sprites [LevelContents] | GameMenu MenuState Sprites [LevelContents]
 
 data Sprites = Sprites{
     karioImage :: Picture,
@@ -33,11 +38,26 @@ data Sprites = Sprites{
 
 type LevelContents = String
 
-data GameState = GameLevel LevelState Sprites [LevelContents] | GameMenu MenuState Sprites [LevelContents]
+---------------------------------------------------------------------------------------------
+-- | General prerequisites for data types in LevelState
 
-type Inputs = [Char] --all keys that are currently down.
+type Position = Point
+type DirectionalVelocity = Vector
+type FrameNr = Int
+data ShouldExist = Exist 
+                 | RemoveIn Float
 
-type CoinScore = Int
+
+data Hitbox = Hitbox {
+    pos :: Position,
+    width :: Width,
+    height :: Height
+    }  --origin in centre
+type Width = Float
+type Height = Float
+
+----------------------------------------------------------------------------------------------
+-- | LevelState
 
 data LevelState = LevelState {
     kario           :: Kario,
@@ -52,6 +72,71 @@ data LevelState = LevelState {
     camera          :: Camera
     }
 
+---------------------
+---Kario Related-----
+
+data Kario = Kario {
+    karHitbox                  :: Hitbox
+    ,desiredHorizontalVelocity :: Float
+    ,powerUp    :: PowerUpState
+    ,invincibleState :: InvincibleState
+    ,karVel     :: DirectionalVelocity
+    ,airborne   :: Airborne
+    ,karioExist :: ShouldExist
+    ,karAnim    :: KarioAnimation
+}
+
+data Airborne = Grounded | Airborne deriving Eq
+
+data PowerUpType = Big | Invincible | Small
+
+data KarioAnimation = Idle 
+                    | Walking FrameNr Float
+                    | Jumping 
+                    | Dying   FrameNr Float
+
+---Kario Related-----
+---------------------
+
+data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
+
+---------------------
+---Coin related------
+
+data Coin = Coin Hitbox CoinAnimation ShouldExist
+
+data CoinAnimation = Bling FrameNr Float  
+
+---Coin related------
+---------------------
+
+type Inputs = [Char] --all keys that are currently down.
+
+data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
+           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }     
+           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
+
+data PowerUp = Mushroom { hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} 
+             | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
+
+data EnemyAnimation = EnemyMoving FrameNr Float
+
+data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
+
+data PowerUpType = Big | Invincible | Small
+data PowerUp = Mushroom {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
+
+data Coin = Coin Hitbox CoinAnimation ShouldExist
+
+data FlagPole = FlagPole Hitbox
+
+type CoinScore = Int
+
+data Camera = Camera Hitbox DirectionalVelocity
+
+---------------------------------------------------------------------------------------------
+-- | MenuState
+
 data MenuState = MenuState {
     selectedLevel :: Maybe Int,
     gameScreen :: GameScreen,
@@ -60,112 +145,13 @@ data MenuState = MenuState {
     coinMenuScore :: CoinScore
 }
 
-type Position = Point
-type Width = Float
-type Height = Float
-type DirectionalVelocity = Vector
-type DirectionalAcceleration = Vector
-data ShouldExist = Exist 
-                 | RemoveIn Float
-
-data Kario = Kario {
-    karHitbox   :: Hitbox
-    ,desiredHorizontalVelocity :: Float
-    ,powerUp    :: PowerUpState
-    ,invincibleState :: InvincibleState
-    ,karVel     :: DirectionalVelocity
-    ,karAccel   :: DirectionalAcceleration
-    ,airborne   :: Airborne
-    ,karioExist :: ShouldExist
-    ,karAnim    :: KarioAnimation
-}
-
-type FrameNr = Int
-
-data KarioAnimation = Idle 
-                    | Walking FrameNr Float
-                    | Jumping 
-                    | Dying   FrameNr Float
-
-data Camera = Camera Hitbox DirectionalVelocity
-
-data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
-           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }     
-           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
-
-data EnemyAnimation = EnemyMoving FrameNr Float
-
-data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
-
-data PowerUpState = Big | Small
-data InvincibleState = Invincible Float | Vulnerable
-data PowerUp = Mushroom {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
-
-data Coin = Coin Hitbox CoinAnimation ShouldExist
-
-data FlagPole = FlagPole Hitbox
-
-data Hitbox = Hitbox {
-    pos :: Position,
-    width :: Width,
-    height :: Height
-    }  --origin in centre
-
-type Overlap = Hitbox
-
-data Airborne = Grounded | Airborne deriving Eq
-
-data CoinAnimation = Bling | Collecting Float
-
-gridSize :: Float
-gridSize = 30
-type GameName = String
-
-initialState :: Sprites -> [String] -> CoinScore -> GameState
-initialState s l c = GameMenu (initialMenuState l c) s l 
-
-initialMenuState :: [String] -> CoinScore -> MenuState
-initialMenuState l c =
-    let selectedLevelInt = if Prelude.null l then Nothing
-            else Just 0 in
-    let selectedLevelObject = if Prelude.null l then Nothing
-            else Just generateSelector in
-    MenuState{
-    selectedLevel = selectedLevelInt,
-    gameScreen = GameScreen $ Hitbox ((\(x,y) -> (0, 0)) screenSize) 0 0,
-    levelButtons = generateLevelButtons l,
-    selector = selectedLevelObject,
-    coinMenuScore = c
-}
-
-screenSize :: (Int,Int)
-screenSize = (600,600)
-
-----------------------------------------UI STUFF------------------------
+---------------------------------------------------------------------------------------------
+-- | UI
 data GameScreen = GameScreen Hitbox
 data LevelButton = LevelButton Hitbox Int
 data Selector = Selector Hitbox
 
-buttonSize :: Float
-buttonSize = 60
+---------------------------------------------------------------------------------------------
+-- | Collision
 
-buttonPadding :: Float
-buttonPadding = 30
-
-buttonStartPosition :: (Float,Float)
-buttonStartPosition = (\(x,y) -> ((int2Float x)/4 - (int2Float x)/2,(int2Float y)/2 - (int2Float y)/2)) screenSize
-
-buttonAmountX :: Float
-buttonAmountX = 4
-
-buttonAmountY :: Float
-buttonAmountY = 2
-
-generateLevelButtons :: [String] -> [LevelButton]
-generateLevelButtons l = toList (mapWithIndex (\i _-> LevelButton (Hitbox (buttonPosition i) buttonSize buttonSize) i ) (fromList l))
-
-generateSelector :: Selector
-generateSelector = Selector (Hitbox buttonStartPosition 0 0)
-
-buttonPosition :: Int -> (Float, Float)
-buttonPosition i = (\(x,y) i -> (x + ((buttonSize + buttonPadding) * int2Float(mod (floor i) (floor buttonAmountX))), y - ((buttonSize + buttonPadding) * int2Float(mod (floor (i/buttonAmountX)) (floor buttonAmountY))))) buttonStartPosition (int2Float i)
+type Overlap = Hitbox

@@ -10,6 +10,8 @@ import EnemyLogic
 import Positioning
 import Movable
 import Accelerable
+import Initialisation
+import UI
 import Graphics.Gloss.Interface.IO.Game
 import LevelImporter (levelBuilder)
 import Collision (isOverlapping, isColliding, getOverlaps, getBox)
@@ -18,6 +20,7 @@ import Data.List (delete)
 import GHC.Float (int2Float)
 import PowerUpLogic (stepPowerUp)
 import Existable (Existable(handleExistence))
+import Animation (updateAnimation)
 
 --camera modifiers
 cameraSpeed :: Float
@@ -47,7 +50,7 @@ stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemie
     kario = stepKario powerups secs platforms enemies' kario,
     elapsedGameTime = elapsedGameTime + secs,
     enemies = map (stepEnemy secs platforms kario) enemies',
-    coins = filter (not . isColliding kario) coins,
+    coins = map (updateAnimation secs) $ filter (not . isColliding kario) coins,
     coinLevelScore = coinLevelScore + length (filter (isColliding kario) coins),
     camera = updateCamera secs kario camera,
     powerups = map (stepPowerUp secs platforms kario) powerups'
