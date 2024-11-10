@@ -24,8 +24,8 @@ viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemie
     drawPlatforms platforms sprites,
     animateCoins coins coinPictures elapsedGameTime,
     Pictures $ map (drawEnemy sprites) enemies,     --draw all enemies
-    drawFlagPole sprites flagPole ],
-    Pictures (map (drawPowerUps sprites) powerups),
+    drawFlagPole sprites flagPole,
+    Pictures (map (drawPowerUps sprites) powerups) ],
  
     drawCoinCounter coinLevelScore ]                --draw UIelement separately so it does not move along with camera
     where
