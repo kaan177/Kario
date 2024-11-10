@@ -46,7 +46,7 @@ handlePlatformCollisions prevPos platforms movedEnemy = foldr (handleCollision p
 
 handleCollision :: Position -> Overlap -> Enemy -> Enemy
 handleCollision (prevX,prevY) Hitbox{width = overlapX, height = overlapY} enemy
-    | overlapX < (overlapY - overlapYBias) = updateVel (- vx, vy) $  updatePos enemy (prevX, newY) --when the horizontal overlap is smaller we treat the collision as a horizontal one
+    | overlapX < (overlapY - overlapYBias) = updateVel (- vx, vy) $ updatePos enemy (prevX, newY) --when the horizontal overlap is smaller we treat the collision as a horizontal one
     | otherwise                            = updateVel (vx,0) $ updatePos enemy (newX, prevY)      --otherwise we treat it as a vertical collision where the enemy falls
     where (newX,newY) = getPos enemy
           (vx,vy)     = getVel enemy

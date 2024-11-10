@@ -6,7 +6,7 @@ import Data.Maybe(mapMaybe)
 
 -- | Constants to try to mitigate bug damage
 overlapYBias :: Float
-overlapYBias = 5
+overlapYBias = 2
 
 -- | Collidable type class
 class Collidable a where
