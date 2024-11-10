@@ -7,14 +7,13 @@ import Model
 import KarioLogic
 import Graphics.Gloss
 import EnemyLogic
-import Positioning
 import Movable
 import Accelerable
 import Initialisation
 import UI
 import Graphics.Gloss.Interface.IO.Game
 import LevelImporter (levelBuilder)
-import Collision (isOverlapping, isColliding, getOverlaps, getBox)
+import Collision
 
 import Data.List (delete)
 import GHC.Float (int2Float)

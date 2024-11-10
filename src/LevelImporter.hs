@@ -3,9 +3,9 @@
 module LevelImporter (levelBuilder) where
 
 import Model
-import Positioning
 import GHC.Float (int2Float)
 import Animation (frameDuration)
+import Collision
 
 --constant for grid customisation
 gridSize :: Float

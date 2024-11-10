@@ -5,7 +5,6 @@ import Model
 import Collision
 import Movable
 import Accelerable
-import Positioning
 import GHC.Float
 import Animation
 
@@ -24,7 +23,7 @@ stepKario :: Float -> [Platform] -> [Enemy] -> Kario -> Kario
 stepKario secs platforms enemies kario@Kario{karHitbox = Hitbox{pos = prevPos}} =
     handleExistence secs 
   . handleOutOfBounds
-  . moveAndCollide secs platforms 
+  . moveAndCollide secs platforms
   . applyFriction secs 
   . applyGravity secs 
   . handleEnemyCollisions enemies 
@@ -70,11 +69,8 @@ handleEnemyCollision Hitbox{width = overlapX, height = overlapY} kario
   | otherwise           = kario{karioExist = RemoveIn 0}            --vertical but not from above, also dies
   where (velX,velY) = getVel kario
 
---by moving over the x-axis and y-axis seperately we avoid some bugs that arose from our collision implementation
 moveAndCollide :: Float -> [Platform] -> Kario -> Kario
-moveAndCollide secs platforms kario = handlePlatformCollisions (getPos kario') platforms . moveY secs $ kario'
-  where
-    kario' = handlePlatformCollisions (getPos kario) platforms . moveX secs $ kario
+moveAndCollide secs platforms kario = foldl collisionFailSafe (handlePlatformCollisions (getPos kario) platforms . move secs $ kario) platforms
 
 -- handles the collision between kario and all the platforms. Determines whether collisions are horizontal or vertical and acts accordingly.
 handlePlatformCollisions :: Position -> [Platform] -> Kario -> Kario
