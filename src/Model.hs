@@ -47,12 +47,12 @@ type FrameNr = Int
 data ShouldExist = Exist 
                  | RemoveIn Float
 
-
 data Hitbox = Hitbox {
     pos :: Position,
     width :: Width,
     height :: Height
     }  --origin in centre
+
 type Width = Float
 type Height = Float
 
@@ -81,12 +81,12 @@ data Paused = Paused
 data Kario = Kario {
     karHitbox                  :: Hitbox
     ,desiredHorizontalVelocity :: Float
-    ,powerUp    :: PowerUpState
-    ,invincibleState :: InvincibleState
-    ,karVel     :: DirectionalVelocity
-    ,airborne   :: Airborne
-    ,karioExist :: ShouldExist
-    ,karAnim    :: KarioAnimation
+    ,powerUp                   :: PowerUpState
+    ,invincibleState           :: InvincibleState
+    ,karVel                    :: DirectionalVelocity
+    ,airborne                  :: Airborne
+    ,karioExist                :: ShouldExist
+    ,karAnim                   :: KarioAnimation
 }
 
 data Airborne = Grounded | Airborne deriving Eq
@@ -102,7 +102,11 @@ data KarioAnimation = Idle
 ---Kario Related-----
 ---------------------
 
-data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
+data Platform = Ground Hitbox 
+              | Brick Hitbox 
+              | BreakBrick Hitbox ShouldExist 
+              | ItemBox Hitbox PowerUp 
+              | EmptyItemBox Hitbox
 
 ---------------------
 ---Coin related------
@@ -116,16 +120,27 @@ data CoinAnimation = Bling FrameNr Float
 
 type Inputs = [Char] --all keys that are currently down.
 
-data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
-           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }     
-           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
-
-
-
-data PowerUp = Mushroom { hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} 
-             | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
+data Enemy = Koomba      { enemyBox :: Hitbox, 
+                           enemyVel :: DirectionalVelocity, 
+                           enemyExist :: ShouldExist, 
+                           enemyAnim :: EnemyAnimation }
+           | KoopaTroopa { enemyBox :: Hitbox, 
+                           enemyVel :: DirectionalVelocity,
+                           enemyExist :: ShouldExist,
+                           enemyAnim :: EnemyAnimation }     
+           | KoopaShell  { enemyBox :: Hitbox, 
+                           enemyVel :: DirectionalVelocity,
+                           enemyExist :: ShouldExist, 
+                           enemyAnim :: EnemyAnimation }
 
 data EnemyAnimation = EnemyMoving FrameNr Float
+
+data PowerUp = Mushroom { hitbox :: Hitbox, 
+                          powerUpvel :: DirectionalVelocity,
+                          powerShouldExist :: ShouldExist} 
+             | Star {hitbox :: Hitbox, 
+                     powerUpvel :: DirectionalVelocity, 
+                     powerShouldExist :: ShouldExist}
 
 data FlagPole = FlagPole Hitbox
 
@@ -144,7 +159,7 @@ data MenuState = MenuState {
     coinMenuScore :: CoinScore
 }
 
----------------------------------------------------------------------------------------------
+--------------------------------------
 -- | UI
 data GameScreen = GameScreen Hitbox
 data LevelButton = LevelButton Hitbox Int
