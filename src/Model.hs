@@ -23,8 +23,8 @@ data Sprites = Sprites{
     menuImage :: Picture,
     levelBoxImage :: Picture,
     selectionRingImage :: Picture,
-    koombaImage :: Picture,
-    koopaImage :: Picture,
+    koombaMovingImages :: [Picture],
+    koopaMovingImages :: [Picture],
     shellImage :: Picture,
     flagPoleImage :: Picture
 }
@@ -84,9 +84,11 @@ data KarioAnimation = Idle
 
 data Camera = Camera Hitbox DirectionalVelocity
 
-data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
-           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }     
-           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
+data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
+           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }     
+           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
+
+data EnemyAnimation = EnemyMoving FrameNr Float
 
 data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUpType | EmptyItemBox Hitbox
 

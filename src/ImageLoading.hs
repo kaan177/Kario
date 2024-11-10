@@ -18,8 +18,12 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                 menu          <- loadBMP "assets\\StartScreen.bmp"
                 levelBox      <- loadBMP "assets\\LevelBox.bmp"
                 selectionRing <- loadBMP "assets\\SelectionRing.bmp"
-                koomba        <- loadBMP "assets\\Koomba.bmp"
-                koopa         <- loadBMP "assets\\Koopa.bmp"
+                koopaMoving0  <- loadBMP "assets\\KoopaMoving\\Koopa0.bmp"
+                koopaMoving1  <- loadBMP "assets\\KoopaMoving\\Koopa1.bmp"
+                koopaMoving2  <- loadBMP "assets\\KoopaMoving\\Koopa2.bmp"
+                koombaMoving0  <- loadBMP "assets\\KoombaMoving\\Koomba0.bmp"
+                koombaMoving1  <- loadBMP "assets\\KoombaMoving\\Koomba1.bmp"
+                koombaMoving2  <- loadBMP "assets\\KoombaMoving\\Koomba2.bmp"
                 shell         <- loadBMP "assets\\Shell.bmp"
                 flagPole      <- loadBMP "assets\\FlagPole.bmp"
                 return Sprites {
@@ -34,8 +38,8 @@ loadImages = do kario <- loadBMP "assets\\Kario.bmp"
                     menuImage = menu,
                     levelBoxImage = levelBox,
                     selectionRingImage = selectionRing,
-                    koombaImage = koomba,
-                    koopaImage = koopa,
+                    koombaMovingImages = [koombaMoving0, koombaMoving1, koombaMoving2],
+                    koopaMovingImages = [koopaMoving0, koopaMoving1, koopaMoving2],
                     shellImage = shell,
                     flagPoleImage = flagPole
                     }

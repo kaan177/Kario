@@ -1,6 +1,6 @@
 module Animation(updateAnimation, frameDuration) where
 
-import Model 
+import Model
 
 --constant for animation in general
 animationFPS :: Float
@@ -16,7 +16,7 @@ class Animatable a where
     setFrame         :: FrameNr -> a -> a
     getNrOfFrames    :: a -> Int
     getTimeUntilNext :: a -> Float
-    setTimeUntilNext :: Float -> a -> a 
+    setTimeUntilNext :: Float -> a -> a
 
 instance Animatable Kario where
     getFrame Kario{karAnim = Idle}         = 0
@@ -39,7 +39,15 @@ instance Animatable Kario where
     setTimeUntilNext t k@Kario{karAnim = Walking nr _} = k{karAnim = Walking nr t}
     setTimeUntilNext _ k@Kario{karAnim = Jumping}      = k
     setTimeUntilNext t k@Kario{karAnim = Dying nr _}   = k{karAnim = Walking nr t}
-    
+
+instance Animatable Enemy where
+    getFrame = (\(EnemyMoving nr _) -> nr) . enemyAnim
+    setFrame nr enemy = let t = (\(EnemyMoving _ t) -> t) . enemyAnim $ enemy in enemy{enemyAnim = EnemyMoving nr t}
+    getNrOfFrames Koomba{}      = 4
+    getNrOfFrames KoopaTroopa{} = 4
+    getNrOfFrames KoopaShell{}  = 0
+    getTimeUntilNext = (\(EnemyMoving _ t) -> t) . enemyAnim
+    setTimeUntilNext t enemy = let nr = (\(EnemyMoving nr _) -> nr) . enemyAnim $ enemy in enemy{enemyAnim = EnemyMoving nr t}
 
 nextFrame ::(Animatable a) => Int -> a -> a
 nextFrame nrOfFrames obj | curFrame < (nrOfFrames - 1) = setFrame (curFrame + 1) obj --go to next frame
@@ -55,5 +63,5 @@ updateAnimation secs obj | curTime <= 0 = nextFrame nrOfFrames . setTimeUntilNex
                          | otherwise    = updateTimeUntilNext secs obj
     where curTime = getTimeUntilNext obj
           nrOfFrames = getNrOfFrames obj
-          
+
 

@@ -73,12 +73,15 @@ animateCoin p time (Coin (Hitbox (x,y) _ _) Bling _) | mod' time 5 <= 4 = transl
                                                      | otherwise = translate x y (head $ tail p)
 
 drawEnemy :: Sprites -> Enemy -> Picture
-drawEnemy s k@Koomba{} =      let (x,y) = getPos k in Translate x y (koombaImage s) 
-drawEnemy s k@KoopaTroopa{} = let (x,y) = getPos k in Translate x y . scale sFac 1 $ koopaImage s 
+drawEnemy s k@KoopaShell{} = let (x,y) = getPos k in Translate x y (shellImage s) 
+drawEnemy s k@Koomba{enemyAnim = EnemyMoving 3 _} = let (x,y)  = getPos k in Translate x y $ koombaMovingImages s !! 1
+drawEnemy s k@Koomba{enemyAnim = EnemyMoving nr _} = let (x,y) = getPos k in Translate x y $ koombaMovingImages s !! nr
+drawEnemy s k@KoopaTroopa{enemyAnim = EnemyMoving nr _} = let (x,y) = getPos k in Translate x y . scale sFac 1 $ pic nr
   where (vx, _) = getVel k
+        pic 3       = koopaMovingImages s !! 1
+        pic frameNr = koopaMovingImages s !! frameNr
         sFac    | vx < 0    =  1 --don't mirror
                 | otherwise = -1 --mirror image
-drawEnemy s k@KoopaShell{} = let (x,y) = getPos k in Translate x y (shellImage s) 
 
 drawFlagPole :: Sprites -> FlagPole -> Picture
 drawFlagPole s f@FlagPole{} = let (x,y) = getPos f in Translate x y (flagPoleImage s)

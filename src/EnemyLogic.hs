@@ -9,10 +9,11 @@ import Positioning
 import Movable
 import Accelerable (Accelerable(applyGravity))
 import Data.IntMap (update)
+import Animation
 
 --should add logic for when out of screen not move
 stepEnemy :: Float -> [Platform] -> Kario -> Enemy -> Enemy
-stepEnemy secs platforms kario enemy = let prevPos = getPos enemy in moveAndCollide secs platforms . applyGravity secs . handleVelocity . checkKarioCollison kario $ enemy
+stepEnemy secs platforms kario enemy = let prevPos = getPos enemy in moveAndCollide secs platforms . applyGravity secs . handleVelocity . checkKarioCollison kario . updateAnimation secs $ enemy
 
 checkKarioCollison :: Kario -> Enemy -> Enemy
 checkKarioCollison kario enemy = case getOverlap (getBox kario) (getBox enemy) of
@@ -26,7 +27,7 @@ handleKarioCollision Hitbox{width = overX, height = overY} kario enemy
   | otherwise     = enemy                           --enemy does not change, kario dies
     where karVelY = snd $ getVel kario
           die e@Koomba{}       = e{enemyExist = RemoveIn 0}
-          die e@KoopaTroopa {} = KoopaShell (getBox e) (0,0) Exist --koopa should turn into shell
+          die e@KoopaTroopa {} = KoopaShell (getBox e) (0,0) Exist (EnemyMoving 0 frameDuration) --koopa should turn into shell
           die e@KoopaShell {}  = e{enemyExist = RemoveIn 0}
 
 
