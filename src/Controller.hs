@@ -44,7 +44,7 @@ stepLevel :: Float -> LevelState -> LevelState
 stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) =    
     let enemies' = handleExistence secs enemies
         powerups' = handleExistence secs powerups in levelState {
-    kario = stepKario secs platforms enemies' kario,
+    kario = stepKario powerups secs platforms enemies' kario,
     elapsedGameTime = elapsedGameTime + secs,
     enemies = map (stepEnemy secs platforms kario) enemies',
     coins = filter (not . isColliding kario) coins,

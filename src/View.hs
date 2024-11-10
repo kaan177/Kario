@@ -15,18 +15,18 @@ view :: GameState -> IO Picture
 view = return . viewPure
 
 viewPure :: GameState -> Picture
-viewPure (GameMenu menu@MenuState {} s _ ) = drawMenu menu s 
-viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore, camera, powerups} sprites@Sprites{coinPictures} _ ) = 
+viewPure (GameMenu menu@MenuState {} s _ ) = drawMenu menu s
+viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore, camera, powerups} sprites@Sprites{coinPictures} _ ) =
     Pictures [
 
     translate (-camX) (-camY) $ Pictures [
-    drawKario kario (getKarioPic sprites kario),
+    drawKario kario elapsedGameTime (getKarioPic sprites kario) ,
     drawPlatforms platforms sprites,
     animateCoins coins coinPictures elapsedGameTime,
     Pictures $ map (drawEnemy sprites) enemies,     --draw all enemies
     drawFlagPole sprites flagPole,
     Pictures (map (drawPowerUps sprites) powerups) ],
- 
+
     drawCoinCounter coinLevelScore ]                --draw UIelement separately so it does not move along with camera
     where
         (camX, camY) = getPos camera
@@ -44,11 +44,18 @@ drawSquares :: Int -> Picture
 drawSquares 0 = polygon (sqrToList (sqrFromSize 10))
 drawSquares n = Pictures [polygon (sqrToList (sqrFromSize 10)), translate 20 0 (drawSquares (n - 1))]
 
-drawKario :: Kario -> Picture -> Picture
-drawKario kario = let (x,y) = getPos kario in translate x y . scale sFac 1
+drawKario :: Kario -> Float -> Picture -> Picture
+drawKario kario secs = let (x,y) = getPos kario in translate x y . starCheck kario secs . scale sFac (bigFactor kario)
   where (vx, _) = getVel kario
         sFac    | vx < 0    =  -1 --mirror image
                 | otherwise =   1 --don't mirror
+        bigFactor Kario{powerUp = Big}= 1.5
+        bigFactor Kario{powerUp = Small}= 1
+        starCheck Kario{invincibleState = Invincible _} secs = Rotate (secs * rotationSpeed)
+        starCheck _ _ = id
+
+rotationSpeed :: Float
+rotationSpeed = 500
 
 getKarioPic :: Sprites -> Kario -> Picture
 getKarioPic s Kario{karAnim = Idle}    = karioImage s
@@ -74,7 +81,7 @@ animateCoin p time (Coin (Hitbox (x,y) _ _) Bling _) | mod' time 5 <= 4 = transl
                                                      | otherwise = translate x y (head $ tail p)
 
 drawEnemy :: Sprites -> Enemy -> Picture
-drawEnemy s k@KoopaShell{} = let (x,y) = getPos k in Translate x y (shellImage s) 
+drawEnemy s k@KoopaShell{} = let (x,y) = getPos k in Translate x y (shellImage s)
 drawEnemy s k@Koomba{enemyAnim = EnemyMoving 3 _} = let (x,y)  = getPos k in Translate x y $ koombaMovingImages s !! 1
 drawEnemy s k@Koomba{enemyAnim = EnemyMoving nr _} = let (x,y) = getPos k in Translate x y $ koombaMovingImages s !! nr
 drawEnemy s k@KoopaTroopa{enemyAnim = EnemyMoving nr _} = let (x,y) = getPos k in Translate x y . scale sFac 1 $ pic nr

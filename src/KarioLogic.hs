@@ -8,6 +8,7 @@ import Accelerable
 import Positioning
 import GHC.Float
 import Animation
+import Data.Tuple
 
 --movement modifiers
 karioSpeed :: Float
@@ -20,8 +21,8 @@ karioAirFriction :: Float
 karioAirFriction = 3
 
 --applies all the functions to kario that make up a step
-stepKario :: Float -> [Platform] -> [Enemy] -> Kario -> Kario
-stepKario secs platforms enemies kario@Kario{karHitbox = Hitbox{pos = prevPos}} =
+stepKario :: [PowerUp] -> Float -> [Platform] -> [Enemy] -> Kario -> Kario
+stepKario powerUps secs platforms enemies kario@Kario{karHitbox = Hitbox{pos = prevPos}} =
     handleExistence secs 
   . handleOutOfBounds
   . moveAndCollide secs platforms 
@@ -31,6 +32,8 @@ stepKario secs platforms enemies kario@Kario{karHitbox = Hitbox{pos = prevPos}} 
   . handleEnemyCollisions enemies 
   . handleAnimations
   . updateAnimation secs
+  . handlePowerUpCollisions powerUps
+  . handleInvincibility secs
   $ kario 
 
 handleAnimations :: Kario -> Kario
@@ -64,13 +67,30 @@ handleExistence secs k@Kario{karioExist = RemoveIn x} = k{karioExist = RemoveIn 
 handleEnemyCollisions :: [Enemy] -> Kario -> Kario
 handleEnemyCollisions enemies kario = foldr handleEnemyCollision kario $ getOverlaps kario enemies
 
-handleEnemyCollision :: Overlap -> Kario -> Kario    
-handleEnemyCollision Hitbox{width = overlapX, height = overlapY} kario 
-  | overlapX < overlapY = kario{karioExist = RemoveIn 0}            --horizontal collision, should die here                                                                     
+handleEnemyCollision :: Overlap -> Kario -> Kario   
+handleEnemyCollision Hitbox{width = overlapX, height = overlapY} kario@Kario{powerUp}
+  | overlapX < overlapY = hitKario kario            --horizontal collision, should die here                                                                     
   | velY < 0            = updateVel (velX, karioJumpStrength) kario --jumps on enemy                                                                    
-  | otherwise           = kario{karioExist = RemoveIn 0}            --vertical but not from above, also dies
+  | otherwise           = hitKario kario            --vertical but not from above, also dies
   where (velX,velY) = getVel kario
 
+hitKario :: Kario -> Kario
+hitKario k@Kario{invincibleState = Invincible _} = k
+hitKario k@Kario{powerUp = Big, karHitbox} = k{powerUp = Small, invincibleState = Invincible 0.5, karHitbox = karHitbox{height = height karHitbox / 1.5}}
+hitKario k@Kario{} = k{karioExist = RemoveIn 0}
+
+handlePowerUpCollisions :: [PowerUp] -> Kario -> Kario
+handlePowerUpCollisions powerups kario = foldr handlePowerUpCollision kario (filter (isColliding kario) powerups)
+
+handlePowerUpCollision :: PowerUp -> Kario -> Kario
+handlePowerUpCollision Mushroom {} kario@Kario{karHitbox, powerUp = Small} = kario{powerUp = Big, karHitbox = karHitbox{height = height karHitbox * 1.5, pos = (\(x,y) -> (x ,y + 23)) (pos karHitbox)}  }
+handlePowerUpCollision Mushroom {} kario@Kario{karHitbox} = kario
+handlePowerUpCollision Star {} kario = kario{invincibleState = Invincible 10}
+
+handleInvincibility :: Float -> Kario -> Kario
+handleInvincibility secs k@Kario{invincibleState = Invincible x} | x <= 0 = k{invincibleState = Vulnerable}
+                                                                 | otherwise = k{invincibleState = Invincible (x - secs)}
+handleInvincibility secs k@Kario{} = k
 --by moving over the x-axis and y-axis seperately we avoid some bugs that arose from our collision implementation
 moveAndCollide :: Float -> [Platform] -> Kario -> Kario
 moveAndCollide secs platforms kario = handlePlatformCollisions (getPos kario') platforms . moveY secs $ kario'

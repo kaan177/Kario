@@ -71,7 +71,8 @@ data ShouldExist = Exist
 data Kario = Kario {
     karHitbox   :: Hitbox
     ,desiredHorizontalVelocity :: Float
-    ,powerUp    :: PowerUpType
+    ,powerUp    :: PowerUpState
+    ,invincibleState :: InvincibleState
     ,karVel     :: DirectionalVelocity
     ,karAccel   :: DirectionalAcceleration
     ,airborne   :: Airborne
@@ -96,7 +97,8 @@ data EnemyAnimation = EnemyMoving FrameNr Float
 
 data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
 
-data PowerUpType = Big | Invincible | Small
+data PowerUpState = Big | Small
+data InvincibleState = Invincible Float | Vulnerable
 data PowerUp = Mushroom {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
 
 data Coin = Coin Hitbox CoinAnimation ShouldExist
