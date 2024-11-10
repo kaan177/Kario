@@ -88,7 +88,8 @@ data Kario = Kario {
 
 data Airborne = Grounded | Airborne deriving Eq
 
-data PowerUpType = Big | Invincible | Small
+data InvincibleState  = Invincible Float | Vulnerable
+data PowerUpState = Big | Small
 
 data KarioAnimation = Idle 
                     | Walking FrameNr Float
@@ -116,17 +117,12 @@ data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, 
            | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }     
            | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
 
+
+
 data PowerUp = Mushroom { hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} 
              | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
 
 data EnemyAnimation = EnemyMoving FrameNr Float
-
-data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
-
-data PowerUpType = Big | Invincible | Small
-data PowerUp = Mushroom {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
-
-data Coin = Coin Hitbox CoinAnimation ShouldExist
 
 data FlagPole = FlagPole Hitbox
 

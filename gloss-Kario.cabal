@@ -31,4 +31,5 @@ executable gloss-Kario
                      , Animation
                      , Existable
                      , Initialisation
+                     , ItemBoxLogic
   default-language:    Haskell2010

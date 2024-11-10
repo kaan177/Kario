@@ -1,4 +1,5 @@
-{-# language NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns #-}
+
 
 module PowerUpLogic(stepPowerUp) where
 import Model
