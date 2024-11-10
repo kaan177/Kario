@@ -16,14 +16,19 @@ view = return . viewPure
 
 viewPure :: GameState -> Picture
 viewPure (GameMenu menu@MenuState {} s _ ) = drawMenu menu s 
-viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore} sprites@Sprites{karioImage, coinPictures} _ ) = Pictures [
+viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore, camera} sprites@Sprites{karioImage, coinPictures} _ ) = 
+    Pictures [
+
+    translate (-camX) (-camY) $ Pictures [
     drawKario kario karioImage,
     drawPlatforms platforms sprites,
     animateCoins coins coinPictures elapsedGameTime,
     Pictures $ map (drawEnemy sprites) enemies,     --draw all enemies
-    drawFlagPole sprites flagPole,
-    drawCoinCounter coinLevelScore
-    ]
+    drawFlagPole sprites flagPole ],
+ 
+    drawCoinCounter coinLevelScore ]                --draw UIelement separately so it does not move along with camera
+    where
+        (camX, camY) = getPos camera
 
 data Square = Sqr Point Point Point Point
 

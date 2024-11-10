@@ -7,24 +7,19 @@ import Model
 import KarioLogic
 import Graphics.Gloss
 import EnemyLogic
+import Positioning
+import Movable
+import Accelerable
 import Graphics.Gloss.Interface.IO.Game
 import LevelImporter (levelBuilder)
-import Data.Data (ConstrRep(FloatConstr))
-import Data.Maybe ( fromMaybe, mapMaybe )
-import GHC.Clock (getMonotonicTimeNSec)
+import Collision (isOverlapping, isColliding, getOverlaps, getBox)
+
 import Data.List (delete)
-import Collision (isOverlapping, isColliding, getOverlaps)
---movement modifiers
-karioSpeed :: Float
-karioSpeed = 50
-karioJumpStrength :: Float
-karioJumpStrength = 250
-karioGroundFriction :: Float
-karioGroundFriction = 20
-karioAirFriction :: Float
-karioAirFriction = 2
-karioMaxFallSpeed :: Float
-karioMaxFallSpeed = 250
+import GHC.Float (int2Float)
+
+--camera modifiers
+cameraSpeed :: Float
+cameraSpeed = 2
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
@@ -44,20 +39,28 @@ stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
 stepLevel :: Float -> LevelState -> LevelState
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore}) =    
+stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera}) =    
     let enemies' = handleExistence secs enemies in levelState {
     kario = stepKario secs platforms enemies' kario,
     elapsedGameTime = elapsedGameTime + secs,
     enemies = map (stepEnemy secs platforms kario) enemies',
     coins = filter (not . isColliding kario) coins,
-    coinLevelScore = coinLevelScore + length (filter (isColliding kario) coins)
+    coinLevelScore = coinLevelScore + length (filter (isColliding kario) coins),
+    camera = updateCamera secs kario camera
     }
 
---handleKarioEnemyCollisions :: [Enemy] -> Kario -> ([Enemy], Kario)
---handleKarioEnemyCollisions enemies kario = foldr handleCollision ([], Kario) enemies
-
---handleKarioEnemyCollision :: Enemy -> ([Enemy], Kario) -> ([Enemy], Kario)
---handleCollision enemy (rest, kario) = 
+updateCamera :: Float -> Kario -> Camera -> Camera
+updateCamera secs kario camera = handleCamBounds . move secs . updateVel (cameraSpeed * (kPosX - cPosX) , cameraSpeed * (kPosY - cPosY)) $ camera
+  where
+    (kPosX, kPosY) = getPos kario
+    (cPosX, cPosY) = getPos camera
+    
+handleCamBounds :: Camera -> Camera
+handleCamBounds cam | posX - halfCamWidth < leftBound = updatePos cam (leftBound + halfCamWidth, posY) 
+                    | otherwise                        = cam
+    where leftBound    = -int2Float(fst screenSize `div` 2)
+          halfCamWidth  = width (getBox cam) / 2
+          (posX, posY) = getPos cam
 
 handleExistence :: Float -> [Enemy] -> [Enemy]
 handleExistence secs = foldr f []

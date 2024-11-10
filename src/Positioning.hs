@@ -3,7 +3,7 @@ module Positioning where
 import Collision (Collidable (getBox, updateBox))
 import Model
 
---Typeclass for position
+--tried to make a typeclass, but ended up not being necessary, so handy helper functions for positioning are in this file
 
 updateBoxPos :: Position -> Hitbox -> Hitbox
 updateBoxPos newPos box = box{pos = newPos}

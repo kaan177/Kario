@@ -29,6 +29,10 @@ instance Collidable Enemy where
     getBox = enemyBox
     updateBox newBox e = e{enemyBox = newBox}
 
+instance Collidable Camera where
+    getBox (Camera box _)      = box
+    updateBox newBox (Camera _ vel) = Camera newBox vel
+
 instance Collidable FlagPole where
     getBox (FlagPole hitbox) = hitbox
     updateBox newBox (FlagPole _)    = FlagPole newBox

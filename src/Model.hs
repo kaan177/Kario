@@ -43,7 +43,8 @@ data LevelState = LevelState {
     inputState      :: Inputs,
     enemies         :: [Enemy],
     flagPole        :: FlagPole,
-    coinLevelScore  :: CoinScore
+    coinLevelScore  :: CoinScore,
+    camera          :: Camera
     }
 
 data MenuState = MenuState {
@@ -68,8 +69,10 @@ data Kario = Kario {
     ,karVel     :: DirectionalVelocity
     ,karAccel   :: DirectionalAcceleration
     ,airborne   :: Airborne
-    ,karioExist :: ShouldExist 
+    ,karioExist :: ShouldExist
 }
+
+data Camera = Camera Hitbox DirectionalVelocity
 
 data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
            | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }     

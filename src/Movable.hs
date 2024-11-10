@@ -26,3 +26,6 @@ instance Movable Kario where
 
 instance Movable Enemy where
   getVel = enemyVel
+
+instance Movable Camera where
+  getVel (Camera _ vel) = vel
