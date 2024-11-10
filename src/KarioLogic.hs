@@ -26,7 +26,6 @@ stepKario secs platforms enemies kario@Kario{karHitbox = Hitbox{pos = prevPos}} 
   . handleOutOfBounds
   . moveAndCollide secs platforms 
   . applyFriction secs 
-  . accelerateKario secs 
   . applyGravity secs 
   . handleEnemyCollisions enemies 
   . handleAnimations
@@ -76,8 +75,6 @@ moveAndCollide :: Float -> [Platform] -> Kario -> Kario
 moveAndCollide secs platforms kario = handlePlatformCollisions (getPos kario') platforms . moveY secs $ kario'
   where
     kario' = handlePlatformCollisions (getPos kario) platforms . moveX secs $ kario
--- !!!!!!!!!!!!!!!!!!!!!!!!!!
---need to look into above, whether moving x and y separately is beneficial for kario as well, so leaving code for now but switched back!!!!!!!!!!!!!
 
 -- handles the collision between kario and all the platforms. Determines whether collisions are horizontal or vertical and acts accordingly.
 handlePlatformCollisions :: Position -> [Platform] -> Kario -> Kario
@@ -89,13 +86,6 @@ handlePlatformCollisions (prevX, prevY) platforms movedKario = foldr handlePlatf
       | vy > 0              = kario{karHitbox = hitbox{pos = (newX, prevY)}, karVel = (vx, 0)}                      --if it is not horizontal and there is upwards velocity kario bumps its head
       | otherwise           = kario{karHitbox = hitbox{pos = (newX, prevY)}, karVel = (vx, 0), airborne = Grounded} --otherwise we treat it as a vertical collision where kario falls
 
-{- --moves kario using its current velocity
-moveKario :: Float -> Kario -> Kario
-moveKario secs kario@Kario{karHitbox = hitbox@Hitbox{pos = (px, py)}, karVel = (vx, vy)} = kario{karHitbox = hitbox{pos = (px + secs * vx, py + secs * vy)}} -}
-
--- !! currently not in use !! Adds velocity to kario based on its acceleration
-accelerateKario :: Float -> Kario -> Kario
-accelerateKario secs kario@Kario{karAccel = (accX, accY), karVel = (velX, velY)} = kario{karVel = (velX + secs * accX, velY + secs *accY)}
 
 --adds the right amount of velocity to kario based on its desired velocity and the current friction
 applyFriction :: Float -> Kario -> Kario
