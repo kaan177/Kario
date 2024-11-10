@@ -78,16 +78,18 @@ data LevelState = LevelState {
 data Kario = Kario {
     karHitbox                  :: Hitbox
     ,desiredHorizontalVelocity :: Float
-    ,powerUp                   :: PowerUpType
-    ,karVel                    :: DirectionalVelocity
-    ,airborne                  :: Airborne
-    ,karioExist                :: ShouldExist
-    ,karAnim                   :: KarioAnimation
+    ,powerUp    :: PowerUpState
+    ,invincibleState :: InvincibleState
+    ,karVel     :: DirectionalVelocity
+    ,airborne   :: Airborne
+    ,karioExist :: ShouldExist
+    ,karAnim    :: KarioAnimation
 }
 
 data Airborne = Grounded | Airborne deriving Eq
 
-data PowerUpType = Big | Invincible | Small
+data InvincibleState  = Invincible Float | Vulnerable
+data PowerUpState = Big | Small
 
 data KarioAnimation = Idle 
                     | Walking FrameNr Float
@@ -114,6 +116,8 @@ type Inputs = [Char] --all keys that are currently down.
 data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
            | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }     
            | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
+
+
 
 data PowerUp = Mushroom { hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist} 
              | Star {hitbox :: Hitbox, powerUpvel :: DirectionalVelocity, powerShouldExist :: ShouldExist}
