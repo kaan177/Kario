@@ -22,9 +22,12 @@ checkKarioCollison kario enemy = case getOverlap (getBox kario) (getBox enemy) o
 handleKarioCollision :: Overlap -> Kario -> Enemy -> Enemy
 handleKarioCollision Hitbox{width = overX, height = overY} kario enemy
   | overX < overY = enemy                           --enemy does not change, kario dies
-  | karVelY < 0   = enemy{enemyExist = RemoveIn 0}  --kario jumps on enemy, enemy dies
+  | karVelY < 0   = die enemy                       --kario jumps on enemy, enemy dies
   | otherwise     = enemy                           --enemy does not change, kario dies
     where karVelY = snd $ getVel kario
+          die e@Koomba{}       = e{enemyExist = RemoveIn 0}
+          die e@KoopaTroopa {} = KoopaShell (getBox e) (0,0) Exist --koopa should turn into shell
+          die e@KoopaShell {}  = e{enemyExist = RemoveIn 0}
 
 
 --by moving over the x-axis and y-axis seperately we avoid some bugs that arose from our collision implementation 
@@ -51,4 +54,4 @@ handleVelocity enemy = case getVel enemy of
 setDefaultVelocity :: Enemy -> Enemy
 setDefaultVelocity k@Koomba{}      = k{enemyVel = (-50, 0)}
 setDefaultVelocity k@KoopaTroopa{} = k{enemyVel = (-50,0)}
-setDefaultVelocity k@KoopaShell{}  = k{enemyVel = (0,0)}
+setDefaultVelocity k@KoopaShell{}  = k{enemyVel = (100,100)}

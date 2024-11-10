@@ -9,6 +9,7 @@ import GHC.Float (int2Float)
 import MenuDrawer
 import Data.Fixed
 import Positioning
+import Movable
 
 view :: GameState -> IO Picture
 view = return . viewPure
@@ -38,7 +39,10 @@ drawSquares 0 = polygon (sqrToList (sqrFromSize 10))
 drawSquares n = Pictures [polygon (sqrToList (sqrFromSize 10)), translate 20 0 (drawSquares (n - 1))]
 
 drawKario :: Kario -> Picture -> Picture
-drawKario kario = let (x,y) = getPos kario in translate x y
+drawKario kario = let (x,y) = getPos kario in translate x y . scale sFac 1
+  where (vx, _) = getVel kario
+        sFac    | vx < 0    =  -1 --mirror image
+                | otherwise =   1 --don't mirror
 
 drawPlatforms :: [Platform] -> Sprites -> Picture
 drawPlatforms list sprites = Pictures (map (drawPlatform sprites) list)
@@ -57,7 +61,12 @@ animateCoin p time (Coin (Hitbox (x,y) _ _) Bling _) | mod' time 5 <= 4 = transl
                                                      | otherwise = translate x y (head $ tail p)
 
 drawEnemy :: Sprites -> Enemy -> Picture
-drawEnemy s k@Koomba{} = let (x,y) = getPos k in Translate x y (koombaImage s) 
+drawEnemy s k@Koomba{} =      let (x,y) = getPos k in Translate x y (koombaImage s) 
+drawEnemy s k@KoopaTroopa{} = let (x,y) = getPos k in Translate x y . scale sFac 1 $ koopaImage s 
+  where (vx, _) = getVel k
+        sFac    | vx < 0    =  1 --don't mirror
+                | otherwise = -1 --mirror image
+drawEnemy s k@KoopaShell{} = let (x,y) = getPos k in Translate x y (shellImage s) 
 
 drawFlagPole :: Sprites -> FlagPole -> Picture
 drawFlagPole s f@FlagPole{} = let (x,y) = getPos f in Translate x y (flagPoleImage s)
