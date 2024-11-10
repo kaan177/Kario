@@ -46,7 +46,7 @@ data LevelState = LevelState {
     elapsedGameTime :: Float,
     inputState      :: Inputs,
     enemies         :: [Enemy],
-    powerups :: [PowerUp],
+    powerups        :: [PowerUp],
     flagPole        :: FlagPole,
     coinLevelScore  :: CoinScore,
     camera          :: Camera
@@ -71,7 +71,7 @@ data ShouldExist = Exist
 data Kario = Kario {
     karHitbox   :: Hitbox
     ,desiredHorizontalVelocity :: Float
-    ,powerUp :: PowerUpType
+    ,powerUp    :: PowerUpType
     ,karVel     :: DirectionalVelocity
     ,karAccel   :: DirectionalAcceleration
     ,airborne   :: Airborne
