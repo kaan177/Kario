@@ -7,6 +7,7 @@ import Movable
 import Accelerable
 import Positioning
 import GHC.Float
+import Animation
 
 --movement modifiers
 karioSpeed :: Float
@@ -21,7 +22,31 @@ karioAirFriction = 3
 --applies all the functions to kario that make up a step
 stepKario :: Float -> [Platform] -> [Enemy] -> Kario -> Kario
 stepKario secs platforms enemies kario@Kario{karHitbox = Hitbox{pos = prevPos}} =
-  (handleExistence secs . handleOutOfBounds . moveAndCollide secs platforms . applyFriction secs . accelerateKario secs . applyGravity secs . handleEnemyCollisions enemies) kario 
+    handleExistence secs 
+  . handleOutOfBounds
+  . moveAndCollide secs platforms 
+  . applyFriction secs 
+  . accelerateKario secs 
+  . applyGravity secs 
+  . handleEnemyCollisions enemies 
+  . handleAnimations
+  . updateAnimation secs
+  $ kario 
+
+handleAnimations :: Kario -> Kario
+
+handleAnimations k@Kario{karAnim = Dying _ _}                        = k --nothing should change when dying
+handleAnimations k@Kario{airborne = Grounded, karAnim = Walking _ _} | closeToStill $ fst (getVel k) = k{karAnim = Idle} --change to idle, standing still
+                                                                     | otherwise                     = k                 --do nothing,     already walking
+handleAnimations k@Kario{airborne = Grounded, karAnim = _}           | closeToStill $ fst (getVel k) = k{karAnim = Idle}                    --change to idle, standing still     
+                                                                     | otherwise                     = k{karAnim = Walking 0 frameDuration} --change to walking, moving on the ground
+handleAnimations k@Kario{airborne = Airborne, karAnim = Jumping}     = k                    --in air, but already jumping, do nothing                                                
+handleAnimations k@Kario{airborne = Airborne}                        | closeToStill $ snd (getVel k) = k                    --barely vertical momentum, not really falling/jumping yet.
+                                                                     | otherwise                     = k{karAnim = Jumping} --in air with momentum but not jumping so change animation to jumping
+--handleAnimations k                                                   = k
+
+closeToStill :: Float -> Bool
+closeToStill velX = velX < 2 && velX > -2
 
 handleOutOfBounds :: Kario -> Kario
 handleOutOfBounds kario | posY < bottomBound = kario{karioExist = RemoveIn 0}
@@ -51,10 +76,12 @@ moveAndCollide :: Float -> [Platform] -> Kario -> Kario
 moveAndCollide secs platforms kario = handlePlatformCollisions (getPos kario') platforms . moveY secs $ kario'
   where
     kario' = handlePlatformCollisions (getPos kario) platforms . moveX secs $ kario
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!
+--need to look into above, whether moving x and y separately is beneficial for kario as well, so leaving code for now but switched back!!!!!!!!!!!!!
 
 -- handles the collision between kario and all the platforms. Determines whether collisions are horizontal or vertical and acts accordingly.
 handlePlatformCollisions :: Position -> [Platform] -> Kario -> Kario
-handlePlatformCollisions (prevX, prevY) platforms movedKario = foldr handlePlatformCollision movedKario{airborne = Falling} $ getOverlaps movedKario platforms
+handlePlatformCollisions (prevX, prevY) platforms movedKario = foldr handlePlatformCollision movedKario{airborne = Airborne} $ getOverlaps movedKario platforms
   where
     handlePlatformCollision :: Hitbox -> Kario -> Kario
     handlePlatformCollision Hitbox{width = overlapX, height = overlapY} kario@Kario{karHitbox = hitbox@Hitbox{pos = (newX, newY)}, karVel = (vx, vy)}
@@ -83,13 +110,13 @@ applyFriction secs kario@Kario{karVel = (velX, velY), airborne, desiredHorizonta
 --should probably find another way of doing this as handling all combinations quickly becomes impossible with more possible inputs
 karioInput :: Inputs -> Kario -> Kario
 karioInput inputState kario@Kario{karVel = (velX, velY), airborne}
-  | aPressed && dPressed && jump = kario{desiredHorizontalVelocity = 0, karVel = (velX, velY + karioJumpStrength), airborne = Rising}
+  | aPressed && dPressed && jump = kario{desiredHorizontalVelocity = 0, karVel = (velX, velY + karioJumpStrength), airborne = Airborne}
   | aPressed && dPressed         = kario{desiredHorizontalVelocity = 0}
-  | aPressed && jump             = kario{desiredHorizontalVelocity = -karioSpeed, karVel = (velX, velY + karioJumpStrength), airborne = Rising}
-  | dPressed && jump             = kario{desiredHorizontalVelocity = karioSpeed, karVel = (velX, velY + karioJumpStrength), airborne = Rising}
+  | aPressed && jump             = kario{desiredHorizontalVelocity = -karioSpeed, karVel = (velX, velY + karioJumpStrength), airborne = Airborne}
+  | dPressed && jump             = kario{desiredHorizontalVelocity = karioSpeed, karVel = (velX, velY + karioJumpStrength), airborne = Airborne}
   | aPressed                     = kario{desiredHorizontalVelocity = -karioSpeed}
   | dPressed                     = kario{desiredHorizontalVelocity = karioSpeed}
-  | jump                         = kario{karVel = (velX, velY + karioJumpStrength), airborne = Rising}
+  | jump                         = kario{karVel = (velX, velY + karioJumpStrength), airborne = Airborne}
   | otherwise                    = kario{desiredHorizontalVelocity = 0}
     where
       aPressed = 'a' `elem` inputState

@@ -16,11 +16,11 @@ view = return . viewPure
 
 viewPure :: GameState -> Picture
 viewPure (GameMenu menu@MenuState {} s _ ) = drawMenu menu s 
-viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore, camera} sprites@Sprites{karioImage, coinPictures} _ ) = 
+viewPure (GameLevel LevelState {kario, platforms, coins, elapsedGameTime, enemies, flagPole, coinLevelScore, camera} sprites@Sprites{coinPictures} _ ) = 
     Pictures [
 
     translate (-camX) (-camY) $ Pictures [
-    drawKario kario karioImage,
+    drawKario kario (getKarioPic sprites kario),
     drawPlatforms platforms sprites,
     animateCoins coins coinPictures elapsedGameTime,
     Pictures $ map (drawEnemy sprites) enemies,     --draw all enemies
@@ -48,6 +48,13 @@ drawKario kario = let (x,y) = getPos kario in translate x y . scale sFac 1
   where (vx, _) = getVel kario
         sFac    | vx < 0    =  -1 --mirror image
                 | otherwise =   1 --don't mirror
+
+getKarioPic :: Sprites -> Kario -> Picture
+getKarioPic s Kario{karAnim = Idle}    = karioImage s
+getKarioPic s Kario{karAnim = Jumping} = karioJumpingImage s
+getKarioPic s Kario{karAnim = Walking 3 _} = karioWalkingImages s !! 1
+getKarioPic s Kario{karAnim = Walking n _} = karioWalkingImages s !! n
+getKarioPic s Kario{karAnim = Dying _ _} = undefined
 
 drawPlatforms :: [Platform] -> Sprites -> Picture
 drawPlatforms list sprites = Pictures (map (drawPlatform sprites) list)

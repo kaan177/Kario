@@ -13,6 +13,8 @@ import GHC.RTS.Flags (ProfFlags)
 
 data Sprites = Sprites{
     karioImage :: Picture,
+    karioWalkingImages :: [Picture],
+    karioJumpingImage :: Picture,
     groundImage :: Picture,
     brickImage :: Picture,
     questionMarkImage :: Picture,
@@ -70,7 +72,15 @@ data Kario = Kario {
     ,karAccel   :: DirectionalAcceleration
     ,airborne   :: Airborne
     ,karioExist :: ShouldExist
+    ,karAnim    :: KarioAnimation
 }
+
+type FrameNr = Int
+
+data KarioAnimation = Idle 
+                    | Walking FrameNr Float
+                    | Jumping 
+                    | Dying   FrameNr Float
 
 data Camera = Camera Hitbox DirectionalVelocity
 
@@ -94,7 +104,7 @@ data Hitbox = Hitbox {
 
 type Overlap = Hitbox
 
-data Airborne = Grounded | Falling | Rising deriving Eq
+data Airborne = Grounded | Airborne deriving Eq
 
 data CoinAnimation = Bling | Collecting Float
 
