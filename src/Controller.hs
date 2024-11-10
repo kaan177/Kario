@@ -20,12 +20,9 @@ import GHC.Float (int2Float)
 import PowerUpLogic (stepPowerUp)
 import Existable (Existable(handleExistence))
 import Animation (updateAnimation)
-<<<<<<< HEAD
 import ItemBoxLogic (stepItemBox)
 import Data.Maybe
-=======
 import Data.Char (toLower)
->>>>>>> aa9a28a5dffec23d10b367ef4ea88fbcc77b9bb8
 
 --camera modifiers
 cameraSpeed :: Float
@@ -48,14 +45,9 @@ stepMenu :: Float -> MenuState -> MenuState
 stepMenu secs menuState = menuState
 
 -- | Handle one iteration of the level
-<<<<<<< HEAD
 stepLevel :: Float -> Float -> LevelState -> LevelState
+stepLevel _ _ levelState@LevelState{paused = Paused} = levelState   
 stepLevel secs rand levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) =
-=======
-stepLevel :: Float -> LevelState -> LevelState
-stepLevel _ levelState@LevelState{paused = Paused} = levelState                                                                --don't do anything when paused
-stepLevel secs levelState@(LevelState {kario, elapsedGameTime, platforms, enemies, coins, coinLevelScore, camera, powerups}) = --otherwise do
->>>>>>> aa9a28a5dffec23d10b367ef4ea88fbcc77b9bb8
     let enemies' = handleExistence secs enemies
         powerups' = handleExistence secs powerups
         newPowerUps = map (snd . stepItemBox kario rand) platforms in levelState {
