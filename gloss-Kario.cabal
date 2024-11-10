@@ -19,7 +19,7 @@ executable gloss-Kario
                      , Model
                      , View
                      , LevelImporter
-                     , MenuDrawer
+                     , UI
                      , Collision
                      , KarioLogic
                      , Positioning
@@ -30,4 +30,5 @@ executable gloss-Kario
                      , PowerUpLogic
                      , Animation
                      , Existable
+                     , Initialisation
   default-language:    Haskell2010

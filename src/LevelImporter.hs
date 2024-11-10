@@ -7,6 +7,10 @@ import Positioning
 import GHC.Float (int2Float)
 import Animation (frameDuration)
 
+--constant for grid customisation
+gridSize :: Float
+gridSize = 30
+
 levelBuilder :: LevelContents -> CoinScore -> LevelState
 levelBuilder s c = recursiveLevelBuilder (listMaker s) (emptyLevel c)
 

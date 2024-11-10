@@ -6,7 +6,7 @@ module View where
 import Graphics.Gloss
 import Model
 import GHC.Float (int2Float)
-import MenuDrawer
+import UI
 import Data.Fixed
 import Positioning
 import Movable
