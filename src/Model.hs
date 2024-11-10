@@ -13,6 +13,8 @@ import GHC.RTS.Flags (ProfFlags)
 
 data Sprites = Sprites{
     karioImage :: Picture,
+    karioWalkingImages :: [Picture],
+    karioJumpingImage :: Picture,
     groundImage :: Picture,
     brickImage :: Picture,
     questionMarkImage :: Picture,
@@ -21,8 +23,8 @@ data Sprites = Sprites{
     menuImage :: Picture,
     levelBoxImage :: Picture,
     selectionRingImage :: Picture,
-    koombaImage :: Picture,
-    koopaImage :: Picture,
+    koombaMovingImages :: [Picture],
+    koopaMovingImages :: [Picture],
     shellImage :: Picture,
     flagPoleImage :: Picture,
     starImage :: Picture,
@@ -42,11 +44,12 @@ data LevelState = LevelState {
     platforms       :: [Platform],
     coins           :: [Coin],
     elapsedGameTime :: Float,
-    inputState :: Inputs,
-    enemies :: [Enemy],
+    inputState      :: Inputs,
+    enemies         :: [Enemy],
     powerups :: [PowerUp],
-    flagPole :: FlagPole,
-    coinLevelScore :: CoinScore
+    flagPole        :: FlagPole,
+    coinLevelScore  :: CoinScore,
+    camera          :: Camera
     }
 
 data MenuState = MenuState {
@@ -66,18 +69,30 @@ data ShouldExist = Exist
                  | RemoveIn Float
 
 data Kario = Kario {
-    karHitbox :: Hitbox
+    karHitbox   :: Hitbox
     ,desiredHorizontalVelocity :: Float
-    ,karVel :: DirectionalVelocity
-    ,karAccel :: DirectionalAcceleration
-    ,airborne :: Airborne
     ,powerUp :: PowerUpType
-    ,karioExist :: ShouldExist 
+    ,karVel     :: DirectionalVelocity
+    ,karAccel   :: DirectionalAcceleration
+    ,airborne   :: Airborne
+    ,karioExist :: ShouldExist
+    ,karAnim    :: KarioAnimation
 }
 
-data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
-           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }     
-           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist }
+type FrameNr = Int
+
+data KarioAnimation = Idle 
+                    | Walking FrameNr Float
+                    | Jumping 
+                    | Dying   FrameNr Float
+
+data Camera = Camera Hitbox DirectionalVelocity
+
+data Enemy = Koomba      { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
+           | KoopaTroopa { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }     
+           | KoopaShell  { enemyBox :: Hitbox, enemyVel :: DirectionalVelocity, enemyExist :: ShouldExist, enemyAnim :: EnemyAnimation }
+
+data EnemyAnimation = EnemyMoving FrameNr Float
 
 data Platform = Ground Hitbox | Brick Hitbox | BreakBrick Hitbox ShouldExist | ItemBox Hitbox PowerUp | EmptyItemBox Hitbox
 
@@ -96,7 +111,7 @@ data Hitbox = Hitbox {
 
 type Overlap = Hitbox
 
-data Airborne = Grounded | Falling | Rising deriving Eq
+data Airborne = Grounded | Airborne deriving Eq
 
 data CoinAnimation = Bling | Collecting Float
 

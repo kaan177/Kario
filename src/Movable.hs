@@ -30,3 +30,6 @@ instance Movable Enemy where
 instance Movable PowerUp where
   getVel (Mushroom _ vel) = vel
   getVel (Star _ vel) = vel
+  
+instance Movable Camera where
+  getVel (Camera _ vel) = vel

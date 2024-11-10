@@ -23,6 +23,5 @@ drawSelector Nothing p = Blank
 drawButton ::  Picture -> LevelButton -> Picture
 drawButton p (LevelButton (Hitbox (x, y) _ _) i) = Pictures [Translate x y p, Translate (x - (buttonSize/2) + 10) (y- (buttonSize/2) + 4) (Scale 0.4 0.4 (Text (show i))) ]
 
-
 drawCoinCounter :: Int -> Picture
-drawCoinCounter c = uncurry Translate ((\(x,y) -> (int2Float x * 0.40, int2Float y * 0.40)) screenSize) (Scale 0.4 0.4 (Text (show c)))
+drawCoinCounter c = uncurry Translate ((\(x,y) -> (int2Float x * 0.40, int2Float y * 0.40)) screenSize) (Scale 0.4 0.4 (color yellow $ Text (show c)))

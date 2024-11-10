@@ -28,4 +28,5 @@ executable gloss-Kario
                      , Accelerable
                      , ImageLoading
                      , PowerUpLogic
+                     , Animation
   default-language:    Haskell2010

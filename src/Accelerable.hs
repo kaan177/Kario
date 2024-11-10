@@ -9,6 +9,9 @@ class (Movable a) => Accelerable a where
     applyGravity secs obj = updateVel (vx, max (vy - secs * gravity) (-maxFallSpeed)) obj
       where (vx, vy) = getVel obj
 
+instance Accelerable Camera where
+    updateVel newVel (Camera box _) = Camera box newVel
+
 instance Accelerable Kario where
     updateVel vel kar = kar{karVel = vel}
 
